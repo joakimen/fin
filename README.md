@@ -6,6 +6,12 @@ List completed tasks from different systems.
 
 fin collects tasks from different sources, such as Jira and Todoist, etc. and displas the results in a single list.
 
+## Installation
+
+```bash
+$ go install github.com/joakimen/fin
+```
+
 ## Usage
 
 For the example below, assume the current time is `2024-02-23 17:00`.
@@ -41,9 +47,3 @@ Env vars are used for authentication to Todoist and Jira.
 - `JIRA_API_USER`
 - `JIRA_API_TOKEN`
 - `JIRA_HOST`
-
-## Installation
-
-```bash
-$ go install github.com/joakimen/fin
-```
