@@ -39,22 +39,15 @@ func getActivity(cfg *config.Config) []byte {
 	req := internal.NewRequest(http.MethodGet, apiURL)
 	req.Header.Set("Authorization", "Bearer "+cfg.Todoist.APIToken)
 	req.Header.Set("Accept", "application/json")
+
+	queryParams := req.URL.Query()
+	queryParams.Add("object_type", "item")
+	queryParams.Add("event_type", "completed")
+	queryParams.Add("limit", "100") // default 30
+	req.URL.RawQuery = queryParams.Encode()
+
 	resp := internal.DoRequest(client, req)
 	return resp
-}
-
-func isCompletedTask(activity *Activity) bool {
-	return activity.ObjectType == "item" && activity.EventType == "completed"
-}
-
-func filterCompletedTasks(activities *[]Activity) []Activity {
-	completedTasks := make([]Activity, 0, len(*activities))
-	for _, activity := range *activities {
-		if isCompletedTask(&activity) {
-			completedTasks = append(completedTasks, activity)
-		}
-	}
-	return completedTasks
 }
 
 func toTask(activity *Activity) task.Task {
@@ -82,6 +75,5 @@ func GetCompletedTasks(cfg *config.Config) []task.Task {
 	}
 
 	activityPayload := deserialize(resp)
-	completedTasks := filterCompletedTasks(&activityPayload.Activities)
-	return toTasks(&completedTasks)
+	return toTasks(&activityPayload.Activities)
 }
