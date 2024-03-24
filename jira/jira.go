@@ -1,9 +1,9 @@
 package jira
 
 import (
-	"fin/config"
-	"fin/internal"
-	"fin/task"
+	"github.com/joakimen/fin/config"
+	"github.com/joakimen/fin/internal"
+	"github.com/joakimen/fin/task"
 	"net/http"
 	"strconv"
 	"time"

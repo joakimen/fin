@@ -1,8 +1,8 @@
 package task
 
 import (
-	"fin/config"
-	"fin/internal"
+	"github.com/joakimen/fin/config"
+	"github.com/joakimen/fin/internal"
 	"fmt"
 	"sort"
 	"time"
