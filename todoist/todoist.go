@@ -1,11 +1,12 @@
 package todoist
 
 import (
+	"net/http"
+	"time"
+
 	"github.com/joakimen/fin/config"
 	"github.com/joakimen/fin/internal"
 	"github.com/joakimen/fin/task"
-	"net/http"
-	"time"
 )
 
 // ActivitiesPayload represents the root structure of the Todoist activity log response.

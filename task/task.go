@@ -1,15 +1,18 @@
 package task
 
 import (
-	"github.com/joakimen/fin/config"
-	"github.com/joakimen/fin/internal"
 	"fmt"
 	"sort"
 	"time"
+
+	"github.com/joakimen/fin/config"
+	"github.com/joakimen/fin/internal"
 )
 
-type CollectorFunc func(cfg *config.Config) []Task
-type Source string
+type (
+	CollectorFunc func(cfg *config.Config) []Task
+	Source        string
+)
 
 const (
 	Todoist Source = "todoist"

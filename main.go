@@ -1,11 +1,12 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/joakimen/fin/config"
 	"github.com/joakimen/fin/jira"
 	"github.com/joakimen/fin/task"
 	"github.com/joakimen/fin/todoist"
-	"fmt"
 )
 
 func main() {
