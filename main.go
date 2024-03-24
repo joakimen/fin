@@ -30,7 +30,7 @@ func main() {
 		allCompletedTasks = append(allCompletedTasks, tasks...)
 	}
 
-	completedTasks := task.FilterTasksCompletedWithinNDays(allCompletedTasks, cfg.Days)
+	completedTasks := task.FilterTasksWithinRequiredTime(allCompletedTasks, cfg.StartDate)
 
 	if len(completedTasks) > 0 {
 		task.SortByCompletedDate(completedTasks, cfg.ReverseOutput)
@@ -39,6 +39,6 @@ func main() {
 			fmt.Println(event)
 		}
 	} else {
-		fmt.Printf("no completed tasks found within the last %d days.\n", cfg.Days)
+		fmt.Printf("no completed tasks found since start date %v.\n", cfg.StartDate)
 	}
 }

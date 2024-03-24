@@ -62,7 +62,8 @@ func searchIssues(cfg *config.Config) []byte {
 	req.Header.Set("Accept", "application/json")
 
 	queryParams := req.URL.Query()
-	queryParams.Add("jql", "assignee = currentUser() AND status = \"Done\" AND resolutiondate >= startOfDay(\"-"+strconv.Itoa(cfg.Days)+"\")")
+	startOfDay := strconv.Itoa(int(time.Now().Sub(cfg.StartDate).Hours() / 24))
+	queryParams.Add("jql", "assignee = currentUser() AND status = \"Done\" AND resolutiondate >= startOfDay(\"-"+startOfDay+"\")")
 	queryParams.Add("fields", "summary,resolutiondate,creator.emailAddress,creator.displayName")
 	req.URL.RawQuery = queryParams.Encode()
 

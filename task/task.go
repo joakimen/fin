@@ -9,7 +9,6 @@ import (
 )
 
 type CollectorFunc func(cfg *config.Config) []Task
-
 type Source string
 
 const (
@@ -23,13 +22,13 @@ type Task struct {
 	Title       string
 }
 
-func FilterTasksCompletedWithinNDays(tasks []Task, days int) []Task {
-	startDate := internal.GetStartOfDay(internal.GetDaysBack(days))
-	var completedFiltered []Task
+func FilterTasksWithinRequiredTime(tasks []Task, startDate time.Time) []Task {
+	completedFiltered := make([]Task, 0, len(tasks))
 	for _, task := range tasks {
-		if task.CompletedAt.After(startDate) {
-			completedFiltered = append(completedFiltered, task)
+		if task.CompletedAt.Before(startDate) || task.CompletedAt.Equal(startDate) {
+			continue
 		}
+		completedFiltered = append(completedFiltered, task)
 	}
 	return completedFiltered
 }
