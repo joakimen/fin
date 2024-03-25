@@ -29,7 +29,7 @@ func LoadConfig() *Config {
 	var cfg Config
 	err := loadFlags(&cfg)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error parsing flags:", err)
+		fmt.Fprintf(os.Stderr, "error parsing flags: %v\n", err)
 		os.Exit(1)
 	}
 	loadEnvVars(&cfg)
@@ -59,10 +59,10 @@ func loadFlags(cfg *Config) error {
 	if err != nil {
 		return err
 	}
-	startDate := time.Date(now.Year(), now.Month(), now.Day()-daysBack, hours, minutes, 0, 0, time.Local)
+	startDate := time.Date(now.Year(), now.Month(), now.Day()-daysBack, hours, minutes, 0, 0, time.UTC)
 
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error parsing cutoff time:", err)
+		fmt.Fprintf(os.Stderr, "error parsing cutoff time: %v\n", err)
 		os.Exit(1)
 	}
 	cfg.StartDate = startDate
