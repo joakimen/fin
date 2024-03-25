@@ -3,6 +3,7 @@ package internal
 import (
 	"fmt"
 	"log"
+	"log/slog"
 	"os"
 	"path/filepath"
 )
@@ -20,6 +21,6 @@ func writeFile(path string, contents []byte) {
 func WriteTestData(filename string, jsonData []byte) {
 	path := filepath.Join("testdata", filename)
 	sizeInKB := len(jsonData) / 1024
-	fmt.Printf("writing %dKB to %s\n", sizeInKB, path)
+	slog.Debug(fmt.Sprintf("writing %dKB to %s\n", sizeInKB, path))
 	writeFile(path, Format(jsonData))
 }

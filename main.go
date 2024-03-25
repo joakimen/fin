@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log/slog"
 
 	"github.com/joakimen/fin/config"
 	"github.com/joakimen/fin/jira"
@@ -11,7 +12,6 @@ import (
 
 func main() {
 	cfg := config.LoadConfig()
-
 	taskCollectors := []task.CollectorFunc{
 		todoist.GetCompletedTasks,
 		jira.GetCompletedTasks,
@@ -32,6 +32,8 @@ func main() {
 	}
 
 	completedTasks := task.FilterTasksWithinRequiredTime(allCompletedTasks, cfg.StartDate)
+	slog.Debug(fmt.Sprintf("excluded %d of %d completed tasks completed before start date",
+		len(allCompletedTasks)-len(completedTasks), len(allCompletedTasks)))
 
 	if len(completedTasks) > 0 {
 		task.SortByCompletedDate(completedTasks, cfg.ReverseOutput)
@@ -40,6 +42,6 @@ func main() {
 			fmt.Println(event)
 		}
 	} else {
-		fmt.Printf("no completed tasks found since start date %v.\n", cfg.StartDate)
+		slog.Info("no completed tasks found since start date", slog.Time("start_date", cfg.StartDate))
 	}
 }

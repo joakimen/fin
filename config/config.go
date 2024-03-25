@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"log/slog"
 	"os"
 	"strconv"
 	"time"
@@ -23,11 +24,17 @@ type Config struct {
 		APIToken string
 		APIHost  string
 	}
+
+	Logger  *slog.Logger
+	Verbose bool
 }
 
 func LoadConfig() *Config {
 	var cfg Config
 	err := loadFlags(&cfg)
+	if cfg.Verbose {
+		slog.SetLogLoggerLevel(slog.LevelDebug)
+	}
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error parsing flags: %v\n", err)
 		os.Exit(1)
@@ -43,6 +50,7 @@ func loadFlags(cfg *Config) error {
 	flag.StringVar(&cfg.Todoist.APIToken, "t", "", "todoist API token")
 	flag.BoolVar(&cfg.SaveTestData, "s", false, "save downloaded task data to testdata/ directory")
 	flag.BoolVar(&cfg.ReverseOutput, "r", false, "reverse the output order of tasks")
+	flag.BoolVar(&cfg.Verbose, "v", false, "verbose output")
 	flag.Parse()
 
 	// deref since go doesn't have real referential transparency

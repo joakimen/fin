@@ -1,6 +1,8 @@
 package jira
 
 import (
+	"fmt"
+	"log/slog"
 	"net/http"
 	"strconv"
 	"time"
@@ -10,7 +12,7 @@ import (
 	"github.com/joakimen/fin/task"
 )
 
-type Time struct {
+type jiraTime struct {
 	time.Time
 }
 
@@ -27,8 +29,8 @@ type Issue struct {
 	ID     string `json:"id"`
 	Key    string `json:"key"`
 	Fields struct {
-		Summary        string `json:"summary"`
-		ResolutionDate Time   `json:"resolutiondate"`
+		Summary        string   `json:"summary"`
+		ResolutionDate jiraTime `json:"resolutiondate"`
 		Creator        struct {
 			EmailAddress string `json:"emailAddress"`
 			DisplayName  string `json:"displayName"`
@@ -37,7 +39,7 @@ type Issue struct {
 }
 
 // UnmarshalJSON adds support for deserializing Jira's date format
-func (jiraTime *Time) UnmarshalJSON(data []byte) (err error) {
+func (jiraTime *jiraTime) UnmarshalJSON(data []byte) (err error) {
 	s := string(data)
 	s = s[1 : len(s)-1]                      // remove leading/trailing quotes in the date string
 	layout := "2006-01-02T15:04:05.000-0700" // "-0700" means "-hhmm", which is what Jira returns
@@ -63,8 +65,8 @@ func searchIssues(cfg *config.Config) []byte {
 	req.Header.Set("Accept", "application/json")
 
 	queryParams := req.URL.Query()
-	startOfDay := strconv.Itoa(int(time.Since(cfg.StartDate).Hours() / 24))
-	queryParams.Add("jql", "assignee = currentUser() AND status = \"Done\" AND resolutiondate >= startOfDay(\"-"+startOfDay+"\")")
+	daysBack := strconv.Itoa(int(time.Since(cfg.StartDate).Hours() / 24))
+	queryParams.Add("jql", "assignee = currentUser() AND status = \"Done\" AND resolutiondate >= startOfDay(\"-"+daysBack+"\")")
 	queryParams.Add("fields", "summary,resolutiondate,creator.emailAddress,creator.displayName")
 	req.URL.RawQuery = queryParams.Encode()
 
@@ -93,10 +95,13 @@ func toTasks(issues *[]Issue) []task.Task {
 // GetCompletedTasks queries Jira for issues that are resolved and assigned to the current user,
 // and returns them as a generic Task slice.
 func GetCompletedTasks(cfg *config.Config) []task.Task {
+	slog.Debug("querying jira issues")
 	resp := searchIssues(cfg)
+	slog.Debug("received response from jira")
 	if cfg.SaveTestData {
 		internal.WriteTestData("jira.json", resp)
 	}
 	searchIssuesPayload := deserialize(resp)
+	slog.Debug(fmt.Sprintf("returning %d completed jira tasks", len(searchIssuesPayload.Issues)))
 	return toTasks(&searchIssuesPayload.Issues)
 }

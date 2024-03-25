@@ -1,6 +1,8 @@
 package todoist
 
 import (
+	"fmt"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -69,12 +71,13 @@ func toTasks(activities *[]Activity) []task.Task {
 
 // GetCompletedTasks queries Activity data from Todoist, and returns them as a generic Task slice.
 func GetCompletedTasks(cfg *config.Config) []task.Task {
+	slog.Debug("querying todoist activity")
 	resp := getActivity(cfg)
-
+	slog.Debug("received response from todoist")
 	if cfg.SaveTestData {
 		internal.WriteTestData("todoist.json", resp)
 	}
-
 	activityPayload := deserialize(resp)
+	slog.Debug(fmt.Sprintf("returning %d completed todoist tasks", len(activityPayload.Activities)))
 	return toTasks(&activityPayload.Activities)
 }
