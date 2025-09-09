@@ -6,6 +6,9 @@ lint:
 lint-fix:
 	golangci-lint run --fix
 
+fmt:
+	gofumpt -w .
+
 test:
 	go test -v ./...
 

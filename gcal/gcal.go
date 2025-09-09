@@ -3,13 +3,14 @@ package gcal
 import (
 	"context"
 	"fmt"
+	"log"
+	"log/slog"
+	"time"
+
 	"github.com/joakimen/fin/config"
 	"github.com/joakimen/fin/task"
 	"google.golang.org/api/calendar/v3"
 	"google.golang.org/api/option"
-	"log"
-	"log/slog"
-	"time"
 )
 
 type jiraTime struct {
@@ -72,7 +73,6 @@ func GetCompletedTasks(cfg *config.Config) []task.Task {
 	slog.Debug("querying gcal events")
 	events, err := srv.Events.List(cfg.GCal.CalendarID).ShowDeleted(false).
 		SingleEvents(true).TimeMin(timeMin).TimeMax(timeMax).OrderBy("startTime").Do()
-
 	if err != nil {
 		log.Fatalf("unable to retrieve events: %v", err)
 	}

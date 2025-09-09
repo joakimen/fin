@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/joakimen/fin/gcal"
 	"log/slog"
+
+	"github.com/joakimen/fin/gcal"
 
 	"github.com/joakimen/fin/config"
 	"github.com/joakimen/fin/task"
@@ -12,8 +13,8 @@ import (
 func main() {
 	cfg := config.LoadConfig()
 	taskCollectors := []task.CollectorFunc{
-		//todoist.GetCompletedTasks,
-		//jira.GetCompletedTasks,
+		// todoist.GetCompletedTasks,
+		// jira.GetCompletedTasks,
 		gcal.GetCompletedTasks,
 	}
 	taskCollectorCount := len(taskCollectors)
