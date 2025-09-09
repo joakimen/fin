@@ -2,3 +2,4 @@ fin
 testdata/
 .lsp/
 .idea/
+.envrc

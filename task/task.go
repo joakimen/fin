@@ -17,10 +17,12 @@ type (
 const (
 	Todoist Source = "todoist"
 	Jira    Source = "jira"
+	GCal    Source = "gcal"
 )
 
 type Task struct {
 	Source      Source
+	StartsAt    time.Time
 	CompletedAt time.Time
 	Title       string
 }

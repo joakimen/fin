@@ -25,6 +25,11 @@ type Config struct {
 		APIHost  string
 	}
 
+	GCal struct {
+		APIToken   string
+		CalendarID string
+	}
+
 	Logger  *slog.Logger
 	Verbose bool
 }
@@ -87,6 +92,8 @@ func loadEnvVars(cfg *Config) {
 		{&cfg.Jira.APIUser, "JIRA_API_USER"},
 		{&cfg.Jira.APIToken, "JIRA_API_TOKEN"},
 		{&cfg.Jira.APIHost, "JIRA_HOST"},
+		{&cfg.GCal.APIToken, "GCAL_API_TOKEN"},
+		{&cfg.GCal.CalendarID, "GCAL_CALENDAR_ID"},
 	}
 
 	for _, envVar := range envVars {
