@@ -24,9 +24,13 @@ Tuesday 15 September
 3 items · 1 Issue · 2 PRs · 2 repositories
 ```
 
-Titles are clickable in terminals that support hyperlinks, and long ones are
-truncated to the terminal width. Styling uses only the sixteen themeable ANSI
-colours, so it reads correctly on light and dark backgrounds alike.
+Titles are clickable in terminals that support hyperlinks. `fin` adds no underline
+of its own — your terminal marks links the way you have configured it, on hover or
+with a modifier held — and long titles are truncated to the terminal width.
+
+Styling uses only the sixteen themeable ANSI colours, so it reads correctly on light
+and dark backgrounds alike. Colour carries one distinction (the item kind); structure
+comes from weight and spacing.
 
 ## Install
 
