@@ -1,5 +1,9 @@
 /target
 
+# Stale artifacts of the previous Go implementation, kept locally
+/fin
+/testdata/
+
 # Local tooling and editor state
 .envrc
 .idea/
