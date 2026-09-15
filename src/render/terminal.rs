@@ -80,7 +80,11 @@ fn paint(style: Style, text: &str, styled: bool) -> String {
 /// Renders the report: a heading, a block per day, and a summary.
 pub fn render(rows: &[Row], range: &TimeRange, layout: Layout) -> String {
     let mut out = String::new();
-    let _ = writeln!(out, "{}", paint(title_style(), "Completed work", layout.styled));
+    let _ = writeln!(
+        out,
+        "{}",
+        paint(title_style(), "Completed work", layout.styled)
+    );
 
     let subtitle = match rows.len() {
         0 => window_label(range),
@@ -109,7 +113,11 @@ pub fn render(rows: &[Row], range: &TimeRange, layout: Layout) -> String {
     }
 
     out.push('\n');
-    let _ = writeln!(out, "{}", paint(rule_style(), &"─".repeat(widths.rule), layout.styled));
+    let _ = writeln!(
+        out,
+        "{}",
+        paint(rule_style(), &"─".repeat(widths.rule), layout.styled)
+    );
     let _ = writeln!(out, "{}", summary(rows, layout.styled));
     out
 }
@@ -158,14 +166,25 @@ impl Widths {
             }
         };
 
-        Self { kind, source, reference, title, rule }
+        Self {
+            kind,
+            source,
+            reference,
+            title,
+            rule,
+        }
     }
 }
 
 fn render_row(row: &Row, widths: &Widths, layout: &Layout) -> String {
     let mut line = String::from(INDENT);
 
-    push_cell(&mut line, &paint(kind_style(&row.kind), &row.kind, layout.styled), row.kind.width(), widths.kind + GAP);
+    push_cell(
+        &mut line,
+        &paint(kind_style(&row.kind), &row.kind, layout.styled),
+        row.kind.width(),
+        widths.kind + GAP,
+    );
 
     if layout.show_source {
         push_cell(&mut line, &row.source, row.source.width(), widths.source);
@@ -214,7 +233,11 @@ fn summary(rows: &[Row], styled: bool) -> String {
     let repositories: std::collections::BTreeSet<&str> =
         rows.iter().filter_map(|r| r.context.as_deref()).collect();
 
-    let mut parts = vec![paint(Style::new().bold(), &plural(rows.len(), "item"), styled)];
+    let mut parts = vec![paint(
+        Style::new().bold(),
+        &plural(rows.len(), "item"),
+        styled,
+    )];
     parts.extend(
         counts
             .iter()
@@ -279,7 +302,11 @@ mod tests {
     }
 
     fn plain() -> Layout {
-        Layout { show_source: false, styled: false, width: Some(80) }
+        Layout {
+            show_source: false,
+            styled: false,
+            width: Some(80),
+        }
     }
 
     /// Removes CSI colour sequences and OSC 8 hyperlink wrappers, leaving the
@@ -324,7 +351,11 @@ mod tests {
 
     #[test]
     fn renders_a_styled_report() {
-        let layout = Layout { show_source: false, styled: true, width: Some(80) };
+        let layout = Layout {
+            show_source: false,
+            styled: true,
+            width: Some(80),
+        };
         insta::assert_snapshot!(render(&rows(&sample()), &range(), layout));
     }
 
@@ -337,13 +368,30 @@ mod tests {
 
     #[test]
     fn styling_never_changes_the_visible_layout() {
-        let styled = render(&rows(&sample()), &range(), Layout { styled: true, ..plain() });
-        assert_eq!(strip_escapes(&styled), render(&rows(&sample()), &range(), plain()));
+        let styled = render(
+            &rows(&sample()),
+            &range(),
+            Layout {
+                styled: true,
+                ..plain()
+            },
+        );
+        assert_eq!(
+            strip_escapes(&styled),
+            render(&rows(&sample()), &range(), plain())
+        );
     }
 
     #[test]
     fn styled_output_hyperlinks_and_underlines_each_title() {
-        let out = render(&rows(&sample()), &range(), Layout { styled: true, ..plain() });
+        let out = render(
+            &rows(&sample()),
+            &range(),
+            Layout {
+                styled: true,
+                ..plain()
+            },
+        );
         assert!(out.contains("\x1b]8;;https://github.com/o/r/pull/12\x1b\\"));
         assert!(out.contains("\x1b[4m"), "titles are not underlined");
     }
@@ -357,12 +405,22 @@ mod tests {
     #[test]
     fn the_summary_counts_items_kinds_and_repositories() {
         let out = render(&rows(&sample()), &range(), plain());
-        assert!(out.contains("3 items · 1 Issue · 2 PRs · 2 repositories"), "got:\n{out}");
+        assert!(
+            out.contains("3 items · 1 Issue · 2 PRs · 2 repositories"),
+            "got:\n{out}"
+        );
     }
 
     #[test]
     fn a_source_column_appears_when_more_than_one_source_is_in_play() {
-        let out = render(&rows(&sample()), &range(), Layout { show_source: true, ..plain() });
+        let out = render(
+            &rows(&sample()),
+            &range(),
+            Layout {
+                show_source: true,
+                ..plain()
+            },
+        );
         assert!(out.contains("GitHub"));
     }
 
@@ -377,17 +435,28 @@ mod tests {
     fn titles_are_truncated_to_the_terminal_width() {
         let mut items = sample();
         items[0].title = "A".repeat(200);
-        let narrow = Layout { show_source: false, styled: false, width: Some(60) };
+        let narrow = Layout {
+            show_source: false,
+            styled: false,
+            width: Some(60),
+        };
         let out = render(&rows(&items), &range(), narrow);
         assert!(out.contains('…'), "long title was not truncated");
-        assert!(out.lines().all(|l| l.width() <= 60), "a line overflowed the terminal");
+        assert!(
+            out.lines().all(|l| l.width() <= 60),
+            "a line overflowed the terminal"
+        );
     }
 
     #[test]
     fn an_unknown_width_leaves_titles_intact() {
         let mut items = sample();
         items[0].title = "A".repeat(200);
-        let unbounded = Layout { show_source: false, styled: false, width: None };
+        let unbounded = Layout {
+            show_source: false,
+            styled: false,
+            width: None,
+        };
         let out = render(&rows(&items), &range(), unbounded);
         assert!(out.contains(&"A".repeat(200)));
         assert!(!out.contains('…'));
@@ -422,9 +491,8 @@ mod tests {
         // Measured in display columns, not bytes: a wide character occupies
         // two columns but three bytes, so a byte offset would differ between
         // rows that are in fact aligned.
-        let column_of = |line: &str, needle: &str| {
-            line.find(needle).map(|byte| line[..byte].width())
-        };
+        let column_of =
+            |line: &str, needle: &str| line.find(needle).map(|byte| line[..byte].width());
         let context_columns: Vec<Option<usize>> = body
             .iter()
             .map(|l| column_of(l, "o/r").or_else(|| column_of(l, "other/repo")))

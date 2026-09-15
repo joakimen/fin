@@ -358,13 +358,21 @@ mod tests {
     #[test]
     fn configured_cache_ttl_is_honoured() {
         let file = ConfigFile::parse("cache_ttl = \"2h\"").unwrap();
-        assert_eq!(resolve(&cli(&[]), file, &now()).unwrap().cache_ttl, Duration::from_secs(7200));
+        assert_eq!(
+            resolve(&cli(&[]), file, &now()).unwrap().cache_ttl,
+            Duration::from_secs(7200)
+        );
     }
 
     #[test]
     fn no_cache_flag_overrides_any_configured_ttl() {
         let file = ConfigFile::parse("cache_ttl = \"2h\"").unwrap();
-        assert_eq!(resolve(&cli(&["--no-cache"]), file, &now()).unwrap().cache_ttl, Duration::ZERO);
+        assert_eq!(
+            resolve(&cli(&["--no-cache"]), file, &now())
+                .unwrap()
+                .cache_ttl,
+            Duration::ZERO
+        );
     }
 
     #[test]

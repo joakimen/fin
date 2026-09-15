@@ -182,7 +182,11 @@ pub fn explicit(now: &Zoned, since: Date, until: Option<Date>) -> Result<TimeRan
     if end < start {
         bail!("--until must not precede --since");
     }
-    Ok(TimeRange { start, end, open_ended })
+    Ok(TimeRange {
+        start,
+        end,
+        open_ended,
+    })
 }
 
 fn start_of_week(date: Date, first_day: DayName) -> Result<Date> {

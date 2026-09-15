@@ -52,13 +52,17 @@ mod tests {
 
     #[test]
     fn stamps_carry_milliseconds() {
-        let now: Zoned = "2026-09-15T09:07:03.042+02:00[Europe/Oslo]".parse().unwrap();
+        let now: Zoned = "2026-09-15T09:07:03.042+02:00[Europe/Oslo]"
+            .parse()
+            .unwrap();
         assert_eq!(stamp(&now), "09:07:03.042");
     }
 
     #[test]
     fn stamps_pad_every_field() {
-        let now: Zoned = "2026-09-15T23:59:59.999+02:00[Europe/Oslo]".parse().unwrap();
+        let now: Zoned = "2026-09-15T23:59:59.999+02:00[Europe/Oslo]"
+            .parse()
+            .unwrap();
         assert_eq!(stamp(&now), "23:59:59.999");
         let midnight: Zoned = "2026-09-15T00:00:00+02:00[Europe/Oslo]".parse().unwrap();
         assert_eq!(stamp(&midnight), "00:00:00.000");

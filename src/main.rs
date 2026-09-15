@@ -148,7 +148,11 @@ fn warn(source: &SourceId, error: &anyhow::Error) {
     }
 }
 
-fn build_sources(settings: &Settings, cache_dir: &std::path::Path, diag: Diag) -> Result<Vec<Box<dyn Source>>> {
+fn build_sources(
+    settings: &Settings,
+    cache_dir: &std::path::Path,
+    diag: Diag,
+) -> Result<Vec<Box<dyn Source>>> {
     let tz = TimeZone::system();
     let mut built: Vec<Box<dyn Source>> = Vec::new();
 
