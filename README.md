@@ -1,12 +1,13 @@
 # fin
 
 [![ci](https://github.com/joakimen/fin/actions/workflows/ci.yml/badge.svg)](https://github.com/joakimen/fin/actions/workflows/ci.yml)
+[![rust](https://img.shields.io/badge/dynamic/toml?url=https%3A%2F%2Fraw.githubusercontent.com%2Fjoakimen%2Ffin%2Fmain%2Frust-toolchain.toml&query=%24.toolchain.channel&label=rust&color=%23dea584)](rust-toolchain.toml)
 
 Report the work you finished, from GitHub and other sources.
 
-`fin` answers "what did I get done this week?" — and prints it in a shape you can
-paste into a status report. It reports *completions*, not activity: a pull request
-counts when it merged, an issue when it closed.
+`fin` answers "what did I get done this week?", in a shape you can paste into a
+status report. It reports *completions*, not activity: a pull request counts when
+it merged, an issue when it closed.
 
 ```
 $ fin
@@ -24,13 +25,12 @@ Tuesday 15 September
 3 items · 1 Issue · 2 PRs · 2 repositories
 ```
 
-Titles are clickable in terminals that support hyperlinks. `fin` adds no underline
-of its own — your terminal marks links the way you have configured it, on hover or
-with a modifier held — and long titles are truncated to the terminal width.
+Titles are clickable in terminals that support hyperlinks. `fin` adds no underline of
+its own, so your terminal marks links the way you have configured it. Long titles are
+truncated to the terminal width.
 
 Styling uses only the sixteen themeable ANSI colours, so it reads correctly on light
-and dark backgrounds alike. Colour carries one distinction (the item kind); structure
-comes from weight and spacing.
+and dark backgrounds alike.
 
 ## Install
 
@@ -49,8 +49,8 @@ Run `make check` to format-check, lint and test.
 ## Authentication
 
 `fin` reuses the GitHub CLI's session, so if `gh auth status` works, so does `fin`.
-Set `GH_TOKEN` or `GITHUB_TOKEN` to override that — useful in CI, where `gh` may not
-be installed.
+Set `GH_TOKEN` or `GITHUB_TOKEN` to override that. This is useful in CI, where `gh`
+may not be installed.
 
 The token needs `repo` and `read:org` to see private and organization work:
 
@@ -136,7 +136,7 @@ for 15 minutes by default. Repeating a report costs nothing and returns instantl
 which matters while you are still editing the text around it.
 
 A cached window is keyed on its start, the sources and kinds involved, and the
-settings that shape the query — changing any of those fetches afresh. A window that
+settings that shape the query. Changing any of those fetches afresh. A window that
 runs up to *now* is deliberately not keyed on its end, so the TTL is what bounds
 how stale a report can be. Use `--no-cache` for a guaranteed-live answer.
 
