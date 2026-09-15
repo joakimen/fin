@@ -2,6 +2,7 @@
 
 [![ci](https://github.com/joakimen/fin/actions/workflows/ci.yml/badge.svg)](https://github.com/joakimen/fin/actions/workflows/ci.yml)
 [![rust](https://img.shields.io/badge/dynamic/toml?url=https%3A%2F%2Fraw.githubusercontent.com%2Fjoakimen%2Ffin%2Fmain%2Frust-toolchain.toml&query=%24.toolchain.channel&label=rust&color=%23dea584)](rust-toolchain.toml)
+[![license](https://img.shields.io/github/license/joakimen/fin)](LICENSE)
 
 Report the work you finished, from GitHub and other sources.
 
