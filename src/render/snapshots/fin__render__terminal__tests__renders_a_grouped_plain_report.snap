@@ -1,0 +1,16 @@
+---
+source: src/render/terminal.rs
+expression: "render(&rows(&sample()), &range(), plain())"
+---
+Completed work
+Mon 14 Sep – Tue 15 Sep 2026 · 3 items
+
+Monday 14 September
+  PR     #12  Add retries to the upload path  o/r
+  Issue  #7   Flaky integration test          o/r
+
+Tuesday 15 September
+  PR     #13  Drop the | separator            other/repo
+
+────────────────────────────────────────────────────────
+3 items · 1 Issue · 2 PRs · 2 repositories

@@ -1,0 +1,16 @@
+---
+source: src/render/terminal.rs
+expression: "render(&rows(&sample()), &range(), layout)"
+---
+[1mCompleted work[0m
+[35mMon 14 Sep – Tue 15 Sep 2026 · 3 items[0m
+
+[1m[33mMonday 14 September[0m
+  [1m[36mPR[0m     [1m#12[0m  ]8;;https://github.com/o/r/pull/12\[4mAdd retries to the upload path[0m]8;;\  [35mo/r[0m
+  [1m[32mIssue[0m  [1m#7[0m   ]8;;https://github.com/o/r/issues/7\[4mFlaky integration test[0m]8;;\          [35mo/r[0m
+
+[1m[33mTuesday 15 September[0m
+  [1m[36mPR[0m     [1m#13[0m  ]8;;https://github.com/other/repo/pull/13\[4mDrop the | separator[0m]8;;\            [35mother/repo[0m
+
+[36m────────────────────────────────────────────────────────[0m
+[1m3 items[0m · [1m[32m1 Issue[0m · [1m[36m2 PRs[0m · [35m2 repositories[0m

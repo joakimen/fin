@@ -1,0 +1,9 @@
+---
+source: src/render/markdown.rs
+expression: out
+---
+| Date | Type | Item |
+| --- | --- | --- |
+| 2026-09-14 | PR | [#12 Add retries to the upload path](https://github.com/o/r/pull/12) — o/r |
+| 2026-09-14 | Issue | [#7 Flaky integration test](https://github.com/o/r/issues/7) — o/r |
+| 2026-09-15 | PR | [#13 Drop the \| separator](https://github.com/other/repo/pull/13) — other/repo |
