@@ -27,20 +27,19 @@ fn title_style() -> Style {
     Style::new().bold()
 }
 
+/// Structure is carried by weight and space, not colour, so headings stay
+/// legible under any theme and the body keeps only two hues.
 fn subtitle_style() -> Style {
-    Style::new().fg_color(Some(AnsiColor::Magenta.into()))
+    Style::new()
 }
 
 fn day_style() -> Style {
-    Style::new().bold().fg_color(Some(AnsiColor::Yellow.into()))
-}
-
-fn reference_style() -> Style {
     Style::new().bold()
 }
 
-fn link_style() -> Style {
-    Style::new().underline()
+/// Identifiers and locations are metadata around the title, and recede.
+fn reference_style() -> Style {
+    Style::new().fg_color(Some(AnsiColor::Magenta.into()))
 }
 
 fn context_style() -> Style {
@@ -48,7 +47,7 @@ fn context_style() -> Style {
 }
 
 fn rule_style() -> Style {
-    Style::new().fg_color(Some(AnsiColor::Cyan.into()))
+    Style::new()
 }
 
 /// Colour for an item kind.
@@ -61,10 +60,16 @@ fn kind_style(kind: &str) -> Style {
         "Issue" => AnsiColor::Green,
         _ => AnsiColor::Yellow,
     };
-    Style::new().bold().fg_color(Some(colour.into()))
+    Style::new().fg_color(Some(colour.into()))
 }
 
 /// Wraps text in an OSC 8 hyperlink.
+///
+/// Deliberately adds no styling of its own. Terminals mark a hyperlink
+/// themselves — on hover, or while a modifier is held — and several expose it
+/// as a user preference, so painting an underline here would both duplicate
+/// that affordance and override the choice the reader already made. A list in
+/// which every row is a link gains nothing from underlining every row.
 fn hyperlink(url: &str, text: &str) -> String {
     format!("\x1b]8;;{url}\x1b\\{text}\x1b]8;;\x1b\\")
 }
@@ -203,7 +208,7 @@ fn render_row(row: &Row, widths: &Widths, layout: &Layout) -> String {
     };
     let title_width = title.width();
     let rendered = if layout.styled {
-        hyperlink(&row.url, &paint(link_style(), &title, true))
+        hyperlink(&row.url, &title)
     } else {
         title
     };
@@ -383,7 +388,7 @@ mod tests {
     }
 
     #[test]
-    fn styled_output_hyperlinks_and_underlines_each_title() {
+    fn styled_output_hyperlinks_each_title() {
         let out = render(
             &rows(&sample()),
             &range(),
@@ -393,7 +398,29 @@ mod tests {
             },
         );
         assert!(out.contains("\x1b]8;;https://github.com/o/r/pull/12\x1b\\"));
-        assert!(out.contains("\x1b[4m"), "titles are not underlined");
+    }
+
+    #[test]
+    fn titles_carry_no_styling_of_their_own() {
+        let out = render(
+            &rows(&sample()),
+            &range(),
+            Layout {
+                styled: true,
+                ..plain()
+            },
+        );
+        assert!(
+            !out.contains("\x1b[4m"),
+            "a hyperlink must not hardcode an underline: the terminal marks it"
+        );
+
+        let title = "Add retries to the upload path";
+        let at = out.find(title).expect("title missing from output");
+        assert!(
+            out[..at].ends_with("\x1b\\"),
+            "title is preceded by styling rather than by the hyperlink opener"
+        );
     }
 
     #[test]

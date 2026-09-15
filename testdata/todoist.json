@@ -1,0 +1,496 @@
+{
+  "count": 95,
+  "events": [
+    {
+      "event_date": "2024-02-23T14:59:31.000000Z",
+      "event_type": "added",
+      "extra_data": {
+        "client": "Mozilla/5.0; Todoist/5331",
+        "content": "idea: qpr (quick-pr)",
+        "note_count": 0
+      },
+      "extra_data_id": 23164832874,
+      "id": 23078534212,
+      "initiator_id": null,
+      "object_id": "7725487087",
+      "object_type": "item",
+      "parent_item_id": null,
+      "parent_project_id": "1773934903"
+    },
+    {
+      "event_date": "2024-02-23T14:55:50.000000Z",
+      "event_type": "deleted",
+      "extra_data": {
+        "client": "Mozilla/5.0; Todoist/5331",
+        "content": "I dag trigger vi deployment, men skal dette v\u00e6re l\u00f8sere koblet? F.eks deployment trigges automatisk basert p\u00e5 events/ny artifakt f.eks?",
+        "note_count": 0
+      },
+      "extra_data_id": 23164789036,
+      "id": 23078490374,
+      "initiator_id": "6926028",
+      "object_id": "7717454551",
+      "object_type": "item",
+      "parent_item_id": null,
+      "parent_project_id": "1773934903"
+    },
+    {
+      "event_date": "2024-02-23T14:55:45.000000Z",
+      "event_type": "updated",
+      "extra_data": {
+        "client": "Mozilla/5.0; Todoist/5331",
+        "content": "Hvordan gj\u00f8r man fullstendig l\u00f8srevet CICD med GHA og AWS, slik at ingen av de vet om hverandre?",
+        "description": "I dag trigger vi deployment, men skal dette v\u00e6re l\u00f8sere koblet? F.eks deployment trigges automatisk basert p\u00e5 events/ny artifakt f.eks?",
+        "last_description": "",
+        "note_count": 0
+      },
+      "extra_data_id": 23164787927,
+      "id": 23078489265,
+      "initiator_id": null,
+      "object_id": "7717538690",
+      "object_type": "item",
+      "parent_item_id": null,
+      "parent_project_id": "1773934903"
+    },
+    {
+      "event_date": "2024-02-23T14:55:28.000000Z",
+      "event_type": "completed",
+      "extra_data": {
+        "client": "Mozilla/5.0; Todoist/5331",
+        "content": "ykman oauth code single",
+        "note_count": 0
+      },
+      "extra_data_id": 23164784289,
+      "id": 23078485631,
+      "initiator_id": null,
+      "object_id": "7724813864",
+      "object_type": "item",
+      "parent_item_id": null,
+      "parent_project_id": "1773934903"
+    },
+    {
+      "event_date": "2024-02-23T14:49:19.000000Z",
+      "event_type": "completed",
+      "extra_data": {
+        "client": "Mozilla/5.0; Todoist/5331",
+        "content": "Sjekk ut arc",
+        "note_count": 0
+      },
+      "extra_data_id": 23164715408,
+      "id": 23078416749,
+      "initiator_id": null,
+      "object_id": "7724779499",
+      "object_type": "item",
+      "parent_item_id": null,
+      "parent_project_id": "1773934903"
+    },
+    {
+      "event_date": "2024-02-23T14:41:13.000000Z",
+      "event_type": "added",
+      "extra_data": {
+        "client": "Mozilla/5.0; Todoist/5331",
+        "content": "Lag oppsett for SonarScanner i JS-prosjekter",
+        "note_count": 0
+      },
+      "extra_data_id": 23164620629,
+      "id": 23078321970,
+      "initiator_id": null,
+      "object_id": "7725434506",
+      "object_type": "item",
+      "parent_item_id": null,
+      "parent_project_id": "1773934903"
+    },
+    {
+      "event_date": "2024-02-23T14:11:06.000000Z",
+      "event_type": "completed",
+      "extra_data": {
+        "client": "Mozilla/5.0; Todoist/5331",
+        "content": "[La inn en prosedyre her - <https://liflig.atlassian.net/wiki/spaces/LTI/pages/17769209/Ops+Liflig+Hub#Oppdatere-CDK-bootstrap-stack>  Bare \u00e5 legge inn](https://liflig.slack.com/archives/C2Z4MHX4Y/p1708696611523719?thread_ts=1708686231.876159&cid=C2Z4MHX4Y)",
+        "note_count": 0
+      },
+      "extra_data_id": 23164271812,
+      "id": 23077973159,
+      "initiator_id": null,
+      "object_id": "7725296030",
+      "object_type": "item",
+      "parent_item_id": null,
+      "parent_project_id": "1773934903"
+    },
+    {
+      "event_date": "2024-02-23T13:58:31.000000Z",
+      "event_type": "added",
+      "extra_data": {
+        "client": "python-requests/2.28.1; App (Slack)",
+        "content": "[La inn en prosedyre her - <https://liflig.atlassian.net/wiki/spaces/LTI/pages/17769209/Ops+Liflig+Hub#Oppdatere-CDK-bootstrap-stack>  Bare \u00e5 legge inn](https://liflig.slack.com/archives/C2Z4MHX4Y/p1708696611523719?thread_ts=1708686231.876159&cid=C2Z4MHX4Y)",
+        "note_count": 0
+      },
+      "extra_data_id": 23164139293,
+      "id": 23077840637,
+      "initiator_id": null,
+      "object_id": "7725296030",
+      "object_type": "item",
+      "parent_item_id": null,
+      "parent_project_id": "1773934903"
+    },
+    {
+      "event_date": "2024-02-23T13:44:47.000000Z",
+      "event_type": "completed",
+      "extra_data": {
+        "client": "Mozilla/5.0; Todoist/5331",
+        "content": "bmise install doesnt support ctrl-c and still installs",
+        "note_count": 0
+      },
+      "extra_data_id": 23163995809,
+      "id": 23077697155,
+      "initiator_id": null,
+      "object_id": "7717361141",
+      "object_type": "item",
+      "parent_item_id": null,
+      "parent_project_id": "1773934903"
+    },
+    {
+      "event_date": "2024-02-23T13:34:35.000000Z",
+      "event_type": "updated",
+      "extra_data": {
+        "client": "Mozilla/5.0; Todoist/5331",
+        "content": "studie",
+        "last_content": "studike",
+        "note_count": 0
+      },
+      "extra_data_id": 23163886122,
+      "id": 23077587466,
+      "initiator_id": null,
+      "object_id": "7713956170",
+      "object_type": "item",
+      "parent_item_id": null,
+      "parent_project_id": "1773934903"
+    },
+    {
+      "event_date": "2024-02-23T13:34:31.000000Z",
+      "event_type": "updated",
+      "extra_data": {
+        "client": "Mozilla/5.0; Todoist/5359",
+        "content": "studike",
+        "last_content": "kompetanseheving",
+        "note_count": 0
+      },
+      "extra_data_id": 23163885326,
+      "id": 23077586671,
+      "initiator_id": null,
+      "object_id": "7713956170",
+      "object_type": "item",
+      "parent_item_id": null,
+      "parent_project_id": "1773934903"
+    },
+    {
+      "event_date": "2024-02-23T13:34:19.000000Z",
+      "event_type": "completed",
+      "extra_data": {
+        "client": "Mozilla/5.0; Todoist/5331",
+        "content": "Felles utf\u00f8ring av hands-on offboarding-oppgaver m/Evan og Erlend",
+        "note_count": 0
+      },
+      "extra_data_id": 23163883037,
+      "id": 23077584382,
+      "initiator_id": null,
+      "object_id": "7725227617",
+      "object_type": "item",
+      "parent_item_id": null,
+      "parent_project_id": "1773934903"
+    },
+    {
+      "event_date": "2024-02-23T13:34:14.000000Z",
+      "event_type": "added",
+      "extra_data": {
+        "client": "Mozilla/5.0; Todoist/5359",
+        "content": "Felles utf\u00f8ring av hands-on offboarding-oppgaver m/Evan og Erlend",
+        "note_count": 0
+      },
+      "extra_data_id": 23163881872,
+      "id": 23077583230,
+      "initiator_id": null,
+      "object_id": "7725227617",
+      "object_type": "item",
+      "parent_item_id": null,
+      "parent_project_id": "1773934903"
+    },
+    {
+      "event_date": "2024-02-23T13:33:38.000000Z",
+      "event_type": "completed",
+      "extra_data": {
+        "client": "Mozilla/5.0; Todoist/5331",
+        "content": "G\u00e5 gjennom og fyll ut mangler/fokusomr\u00e5der: https://liflig.atlassian.net/wiki/spaces/LTI/pages/134021163/Offboarding+Erlend+Viktige+kompetanseomr+der",
+        "note_count": 0
+      },
+      "extra_data_id": 23163872867,
+      "id": 23077574225,
+      "initiator_id": null,
+      "object_id": "7710008685",
+      "object_type": "item",
+      "parent_item_id": null,
+      "parent_project_id": "1773934903"
+    },
+    {
+      "event_date": "2024-02-23T10:50:08.000000Z",
+      "event_type": "added",
+      "extra_data": {
+        "client": "Mozilla/5.0; Todoist/5331",
+        "content": "hva er realpath cmd?",
+        "note_count": 0
+      },
+      "extra_data_id": 23162373630,
+      "id": 23076074997,
+      "initiator_id": null,
+      "object_id": "7724826623",
+      "object_type": "item",
+      "parent_item_id": null,
+      "parent_project_id": "1773934903"
+    },
+    {
+      "event_date": "2024-02-23T10:45:26.000000Z",
+      "event_type": "added",
+      "extra_data": {
+        "client": "Mozilla/5.0; Todoist/5331",
+        "content": "ykman oauth code single",
+        "note_count": 0
+      },
+      "extra_data_id": 23162326977,
+      "id": 23076028350,
+      "initiator_id": null,
+      "object_id": "7724813864",
+      "object_type": "item",
+      "parent_item_id": null,
+      "parent_project_id": "1773934903"
+    },
+    {
+      "event_date": "2024-02-23T10:31:10.000000Z",
+      "event_type": "added",
+      "extra_data": {
+        "client": "Mozilla/5.0; Todoist/5331",
+        "content": "Sjekk ut arc",
+        "note_count": 0
+      },
+      "extra_data_id": 23162211229,
+      "id": 23075912608,
+      "initiator_id": null,
+      "object_id": "7724779499",
+      "object_type": "item",
+      "parent_item_id": null,
+      "parent_project_id": "1773934903"
+    },
+    {
+      "event_date": "2024-02-23T10:02:32.000000Z",
+      "event_type": "added",
+      "extra_data": {
+        "client": "Mozilla/5.0; Todoist/5331",
+        "content": "Les: CloudFormation capabilities",
+        "note_count": 0
+      },
+      "extra_data_id": 23161974986,
+      "id": 23075676367,
+      "initiator_id": null,
+      "object_id": "7724703243",
+      "object_type": "item",
+      "parent_item_id": null,
+      "parent_project_id": "1773934903"
+    },
+    {
+      "event_date": "2024-02-22T11:27:34.000000Z",
+      "event_type": "completed",
+      "extra_data": {
+        "client": "Mozilla/5.0; Todoist/5331",
+        "content": "PR - Evan - actions-lib - deployment action",
+        "note_count": 0
+      },
+      "extra_data_id": 23151287268,
+      "id": 23064988803,
+      "initiator_id": null,
+      "object_id": "7720505460",
+      "object_type": "item",
+      "parent_item_id": null,
+      "parent_project_id": "1773934903"
+    },
+    {
+      "event_date": "2024-02-22T10:08:26.000000Z",
+      "event_type": "updated",
+      "extra_data": {
+        "content": "Sjekk ut Atlassian Compass Components",
+        "description": "[Use Compass components in Jira Software to understand the impact of your team's work](https://community.atlassian.com/t5/Jira-Software-articles/Use-Compass-components-in-Jira-Software-to-understand-the-impact/ba-p/2597512?utm_source=product-announcement-email&utm_medium=email&utm_campaign=jsw-compass-components_EML-17732&jobid=106420448&subid=1709047778)",
+        "last_description": "https://community.atlassian.com/t5/Jira-Software-articles/Use-Compass-components-in-Jira-Software-to-understand-the-impact/ba-p/2597512?utm_source=product-announcement-email&utm_medium=email&utm_campaign=jsw-compass-components_EML-17732&jobid=106420448&subid=1709047778",
+        "note_count": 0
+      },
+      "extra_data_id": 23150538662,
+      "id": 23064240206,
+      "initiator_id": null,
+      "object_id": "7720655722",
+      "object_type": "item",
+      "parent_item_id": null,
+      "parent_project_id": "1773934903"
+    },
+    {
+      "event_date": "2024-02-22T10:08:24.000000Z",
+      "event_type": "added",
+      "extra_data": {
+        "client": "Mozilla/5.0; Todoist/5331",
+        "content": "Sjekk ut Atlassian Compass Components",
+        "note_count": 0
+      },
+      "extra_data_id": 23150538248,
+      "id": 23064239792,
+      "initiator_id": null,
+      "object_id": "7720655722",
+      "object_type": "item",
+      "parent_item_id": null,
+      "parent_project_id": "1773934903"
+    },
+    {
+      "event_date": "2024-02-22T10:02:55.000000Z",
+      "event_type": "completed",
+      "extra_data": {
+        "client": "Mozilla/5.0; Todoist/5331",
+        "content": "Gjennomgang av liflig-dns PR med Erlend",
+        "note_count": 0
+      },
+      "extra_data_id": 23150488250,
+      "id": 23064189793,
+      "initiator_id": null,
+      "object_id": "7720641260",
+      "object_type": "item",
+      "parent_item_id": null,
+      "parent_project_id": "1773934903"
+    },
+    {
+      "event_date": "2024-02-22T10:02:49.000000Z",
+      "event_type": "added",
+      "extra_data": {
+        "client": "Mozilla/5.0; Todoist/5331",
+        "content": "Gjennomgang av liflig-dns PR med Erlend",
+        "note_count": 0
+      },
+      "extra_data_id": 23150487466,
+      "id": 23064189011,
+      "initiator_id": null,
+      "object_id": "7720641260",
+      "object_type": "item",
+      "parent_item_id": null,
+      "parent_project_id": "1773934903"
+    },
+    {
+      "event_date": "2024-02-22T09:44:06.000000Z",
+      "event_type": "added",
+      "extra_data": {
+        "client": "Mozilla/5.0; Todoist/5331",
+        "content": "Les: Hva er en hosted zones?",
+        "note_count": 0
+      },
+      "extra_data_id": 23150311301,
+      "id": 23064012845,
+      "initiator_id": null,
+      "object_id": "7720593698",
+      "object_type": "item",
+      "parent_item_id": null,
+      "parent_project_id": "1773934903"
+    },
+    {
+      "event_date": "2024-02-22T09:38:36.000000Z",
+      "event_type": "added",
+      "extra_data": {
+        "client": "Mozilla/5.0; Todoist/5336",
+        "content": "Erlend oppfordring - QoL-task liflig developer role",
+        "note_count": 0
+      },
+      "extra_data_id": 23150260241,
+      "id": 23063961780,
+      "initiator_id": null,
+      "object_id": "7720578705",
+      "object_type": "item",
+      "parent_item_id": null,
+      "parent_project_id": "1773934903"
+    },
+    {
+      "event_date": "2024-02-22T09:33:19.000000Z",
+      "event_type": "updated",
+      "extra_data": {
+        "client": "Mozilla/5.0; Todoist/5331",
+        "content": "PR - Evan - actions-lib - deployment action",
+        "description": "https://github.com/capralifecycle/actions-lib/pull/9",
+        "last_description": "",
+        "note_count": 0
+      },
+      "extra_data_id": 23150208365,
+      "id": 23063909912,
+      "initiator_id": null,
+      "object_id": "7720505460",
+      "object_type": "item",
+      "parent_item_id": null,
+      "parent_project_id": "1773934903"
+    },
+    {
+      "event_date": "2024-02-22T09:28:04.000000Z",
+      "event_type": "completed",
+      "extra_data": {
+        "client": "Mozilla/5.0; Todoist/5331",
+        "content": "F\u00f8lg opp GHA migreringsansvarlige med teamene",
+        "note_count": 0
+      },
+      "extra_data_id": 23150160678,
+      "id": 23063862225,
+      "initiator_id": null,
+      "object_id": "7720551373",
+      "object_type": "item",
+      "parent_item_id": null,
+      "parent_project_id": "1773934903"
+    },
+    {
+      "event_date": "2024-02-22T09:27:46.000000Z",
+      "event_type": "added",
+      "extra_data": {
+        "client": "Mozilla/5.0; Todoist/5331",
+        "content": "F\u00f8lg opp GHA migreringsansvarlige med teamene",
+        "note_count": 0
+      },
+      "extra_data_id": 23150157561,
+      "id": 23063859107,
+      "initiator_id": null,
+      "object_id": "7720551373",
+      "object_type": "item",
+      "parent_item_id": null,
+      "parent_project_id": "1773934903"
+    },
+    {
+      "event_date": "2024-02-22T09:17:48.000000Z",
+      "event_type": "updated",
+      "extra_data": {
+        "client": "Mozilla/5.0; Todoist/5331",
+        "content": "G\u00e5 gjennom og fyll ut mangler/fokusomr\u00e5der: https://liflig.atlassian.net/wiki/spaces/LTI/pages/134021163/Offboarding+Erlend+Viktige+kompetanseomr+der",
+        "due_date": "2024-02-22T22:59:59.000000Z",
+        "last_due_date": null,
+        "note_count": 0
+      },
+      "extra_data_id": 23150066863,
+      "id": 23063768410,
+      "initiator_id": null,
+      "object_id": "7710008685",
+      "object_type": "item",
+      "parent_item_id": null,
+      "parent_project_id": "1773934903"
+    },
+    {
+      "event_date": "2024-02-22T09:17:44.000000Z",
+      "event_type": "updated",
+      "extra_data": {
+        "client": "Mozilla/5.0; Todoist/5331",
+        "content": "PR - Evan - actions-lib - deployment action",
+        "due_date": "2024-02-22T22:59:59.000000Z",
+        "last_due_date": null,
+        "note_count": 0
+      },
+      "extra_data_id": 23150066375,
+      "id": 23063767922,
+      "initiator_id": null,
+      "object_id": "7720505460",
+      "object_type": "item",
+      "parent_item_id": null,
+      "parent_project_id": "1773934903"
+    }
+  ]
+}
