@@ -8,7 +8,7 @@
 //! unaware of it. The key derivation and freshness test are pure; only
 //! [`Cache`] itself touches the filesystem.
 
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::time::Duration;
 
 use anyhow::{Context, Result};
@@ -78,7 +78,9 @@ pub fn is_fresh(fetched_at: Timestamp, now: Timestamp, ttl: Duration) -> bool {
     if ttl.is_zero() {
         return false;
     }
-    let age = now.as_millisecond().saturating_sub(fetched_at.as_millisecond());
+    let age = now
+        .as_millisecond()
+        .saturating_sub(fetched_at.as_millisecond());
     if age < 0 {
         return false;
     }
@@ -211,10 +213,6 @@ impl Cache {
         }
         Ok(removed)
     }
-
-    pub fn location(&self) -> &Path {
-        &self.dir
-    }
 }
 
 /// A source that serves recent results from disk before asking upstream.
@@ -249,16 +247,21 @@ impl Source for Caching {
         let now = Timestamp::now();
 
         if let Some(items) = self.cache.read(&key, now) {
-            self.diag
-                .log(format_args!("{} cache hit ({key}): {} items", self.id(), items.len()));
+            self.diag.log(format_args!(
+                "{} cache hit ({key}): {} items",
+                self.id(),
+                items.len()
+            ));
             return Ok(items);
         }
-        self.diag.log(format_args!("{} cache miss ({key})", self.id()));
+        self.diag
+            .log(format_args!("{} cache miss ({key})", self.id()));
 
         let items = self.inner.fetch(range, kinds).await?;
 
         if let Err(e) = self.cache.write(&key, &items, now) {
-            self.diag.log(format_args!("{} cache write failed: {e}", self.id()));
+            self.diag
+                .log(format_args!("{} cache write failed: {e}", self.id()));
         }
         Ok(items)
     }
@@ -308,8 +311,18 @@ mod tests {
     #[test]
     fn kind_order_does_not_change_the_key() {
         let id = SourceId::new("github");
-        let forward = key(&id, "fp", &range(false), &[Kind::new("pr"), Kind::new("issue")]);
-        let reverse = key(&id, "fp", &range(false), &[Kind::new("issue"), Kind::new("pr")]);
+        let forward = key(
+            &id,
+            "fp",
+            &range(false),
+            &[Kind::new("pr"), Kind::new("issue")],
+        );
+        let reverse = key(
+            &id,
+            "fp",
+            &range(false),
+            &[Kind::new("issue"), Kind::new("pr")],
+        );
         assert_eq!(forward, reverse);
     }
 
@@ -400,7 +413,9 @@ mod tests {
         let cache = Cache::new(temp_dir("stale"), Duration::from_secs(60));
         let written: Timestamp = "2026-09-15T12:00:00Z".parse().unwrap();
         let much_later: Timestamp = "2026-09-15T13:00:00Z".parse().unwrap();
-        cache.write("k", &[item("https://example.test/1")], written).unwrap();
+        cache
+            .write("k", &[item("https://example.test/1")], written)
+            .unwrap();
         assert!(cache.read("k", much_later).is_none());
     }
 
@@ -426,8 +441,13 @@ mod tests {
         let dir = temp_dir("disabled");
         let cache = Cache::new(dir.clone(), Duration::ZERO);
         let now: Timestamp = "2026-09-15T12:00:00Z".parse().unwrap();
-        cache.write("k", &[item("https://example.test/1")], now).unwrap();
-        assert!(!dir.exists(), "a disabled cache must not create its directory");
+        cache
+            .write("k", &[item("https://example.test/1")], now)
+            .unwrap();
+        assert!(
+            !dir.exists(),
+            "a disabled cache must not create its directory"
+        );
         assert!(cache.read("k", now).is_none());
     }
 
@@ -435,8 +455,12 @@ mod tests {
     fn clearing_removes_entries_and_counts_them() {
         let cache = Cache::new(temp_dir("clear"), Duration::from_secs(900));
         let now: Timestamp = "2026-09-15T12:00:00Z".parse().unwrap();
-        cache.write("a", &[item("https://example.test/1")], now).unwrap();
-        cache.write("b", &[item("https://example.test/2")], now).unwrap();
+        cache
+            .write("a", &[item("https://example.test/1")], now)
+            .unwrap();
+        cache
+            .write("b", &[item("https://example.test/2")], now)
+            .unwrap();
 
         assert_eq!(cache.clear().unwrap(), 2);
         assert!(cache.read("a", now).is_none());
@@ -453,14 +477,19 @@ mod tests {
         let dir = temp_dir("tidy");
         let cache = Cache::new(dir.clone(), Duration::from_secs(900));
         let now: Timestamp = "2026-09-15T12:00:00Z".parse().unwrap();
-        cache.write("k", &[item("https://example.test/1")], now).unwrap();
+        cache
+            .write("k", &[item("https://example.test/1")], now)
+            .unwrap();
 
         let leftovers: Vec<_> = std::fs::read_dir(&dir)
             .unwrap()
             .flatten()
             .filter(|e| e.path().to_string_lossy().contains(".tmp"))
             .collect();
-        assert!(leftovers.is_empty(), "temporary files remained: {leftovers:?}");
+        assert!(
+            leftovers.is_empty(),
+            "temporary files remained: {leftovers:?}"
+        );
     }
 
     #[test]
