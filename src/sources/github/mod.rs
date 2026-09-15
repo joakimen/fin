@@ -195,20 +195,26 @@ mod tests {
     use crate::period::{self as period, DayName, Period};
     use jiff::Zoned;
     use serde_json::Value;
-    use std::sync::Mutex;
+    use std::sync::{Arc, Mutex};
 
     /// Replays canned responses in order, recording the queries it was asked.
     struct Replay {
         pages: Mutex<Vec<Value>>,
-        seen: Mutex<Vec<String>>,
+        seen: Arc<Mutex<Vec<String>>>,
     }
 
     impl Replay {
         fn new(pages: Vec<Value>) -> Self {
             Self {
                 pages: Mutex::new(pages),
-                seen: Mutex::new(Vec::new()),
+                seen: Arc::new(Mutex::new(Vec::new())),
             }
+        }
+
+        /// Handle on the search queries this double is asked for, readable
+        /// after the double has been handed to the source under test.
+        fn recorder(&self) -> Arc<Mutex<Vec<String>>> {
+            Arc::clone(&self.seen)
         }
     }
 
@@ -324,14 +330,21 @@ mod tests {
     #[tokio::test]
     async fn only_the_requested_kinds_are_queried() {
         let api = Replay::new(vec![page(serde_json::json!([]), None)]);
+        let queries = api.recorder();
         let source = github(api, GithubConfig::default());
+
         source.fetch(&range(), &[Kind::new("pr")]).await.unwrap();
-        // One PR search and no issue searches; a second call would exhaust the replay.
+
+        let queries = queries.lock().unwrap();
+        assert_eq!(queries.len(), 1, "expected exactly one search: {queries:?}");
+        assert!(queries[0].contains("is:pr"));
+        assert!(!queries.iter().any(|q| q.contains("is:issue")));
     }
 
     #[tokio::test]
     async fn configured_orgs_reach_the_query() {
         let api = Replay::new(vec![page(serde_json::json!([]), None)]);
+        let queries = api.recorder();
         let config = GithubConfig {
             orgs: vec!["acme".into()],
             ..Default::default()
@@ -342,6 +355,69 @@ mod tests {
             TimeZone::get("Europe/Oslo").unwrap(),
             Diag::new(false),
         );
+
         source.fetch(&range(), &[Kind::new("pr")]).await.unwrap();
+
+        let queries = queries.lock().unwrap();
+        assert!(
+            queries.iter().all(|q| q.contains("org:acme")),
+            "organization missing from {queries:?}"
+        );
+    }
+
+    #[tokio::test]
+    async fn the_fingerprint_tracks_every_setting_that_shapes_a_query() {
+        let base = github(Replay::new(vec![]), GithubConfig::default()).cache_fingerprint();
+
+        let with_org = github(
+            Replay::new(vec![]),
+            GithubConfig {
+                orgs: vec!["acme".into()],
+                ..Default::default()
+            },
+        )
+        .cache_fingerprint();
+        let with_match = github(
+            Replay::new(vec![]),
+            GithubConfig {
+                issue_match: crate::config::IssueMatch::Author,
+                ..Default::default()
+            },
+        )
+        .cache_fingerprint();
+        let with_not_planned = github(
+            Replay::new(vec![]),
+            GithubConfig {
+                include_not_planned: true,
+                ..Default::default()
+            },
+        )
+        .cache_fingerprint();
+
+        assert_ne!(base, with_org);
+        assert_ne!(base, with_match);
+        assert_ne!(base, with_not_planned);
+    }
+
+    #[tokio::test]
+    async fn the_fingerprint_ignores_the_order_organizations_are_listed_in() {
+        let forward = github(
+            Replay::new(vec![]),
+            GithubConfig {
+                orgs: vec!["a".into(), "b".into()],
+                ..Default::default()
+            },
+        )
+        .cache_fingerprint();
+        let reverse = github(
+            Replay::new(vec![]),
+            GithubConfig {
+                orgs: vec!["b".into(), "a".into()],
+                ..Default::default()
+            },
+        )
+        .cache_fingerprint();
+
+        assert_eq!(forward, reverse);
     }
 }
