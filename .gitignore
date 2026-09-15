@@ -1,5 +1,1 @@
-fin
-testdata/
-.lsp/
-.idea/
-.envrc
+/target

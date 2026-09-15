@@ -1,19 +1,28 @@
-all: lint-fix lint test
+.DEFAULT_GOAL := build
+.PHONY: build check test lint fmt fmt-check install run clean
 
-lint:
-	golangci-lint run
+build: check
+	cargo build --release
 
-lint-fix:
-	golangci-lint run --fix
-
-fmt:
-	gofumpt -w .
+check: fmt-check lint test
 
 test:
-	go test -v ./...
+	cargo test
+
+lint:
+	cargo clippy --all-targets -- -D warnings
+
+fmt:
+	cargo fmt
+
+fmt-check:
+	cargo fmt --check
 
 install:
-	go install
+	cargo install --path .
 
+run:
+	cargo run -- $(ARGS)
 
-
+clean:
+	cargo clean
