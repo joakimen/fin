@@ -2,15 +2,15 @@
 .PHONY: build check test lint fmt fmt-check install run clean
 
 build: check
-	cargo build --release
+	cargo build --locked --release
 
 check: fmt-check lint test
 
 test:
-	cargo test
+	cargo test --locked
 
 lint:
-	cargo clippy --all-targets -- -D warnings
+	cargo clippy --locked --all-targets -- -D warnings
 
 fmt:
 	cargo fmt
@@ -19,7 +19,7 @@ fmt-check:
 	cargo fmt --check
 
 install:
-	cargo install --path .
+	cargo install --locked --path .
 
 run:
 	cargo run -- $(ARGS)
