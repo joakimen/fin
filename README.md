@@ -66,6 +66,7 @@ Organizations with SAML enforcement need the token authorized for that organizat
 
 ```sh
 fin                  # the current week so far
+fin -d -p            # yesterday, for a standup
 fin -w -p            # all of last week
 fin -m               # the current month so far
 fin --since 2026-08-01 --until 2026-08-31
@@ -75,6 +76,7 @@ fin --json | jq .    # for anything else
 
 | Flag | Meaning |
 | --- | --- |
+| `-d`, `--day` | Today, from midnight up to now |
 | `-w`, `--week` | The current week, from its first day up to now |
 | `-m`, `--month` | The current month, from the 1st up to now |
 | `-p`, `--prev` | Shift the window one whole period back |
@@ -91,7 +93,7 @@ fin --json | jq .    # for anything else
 | `-c`, `--config <PATH>` | Use this configuration file |
 | `-v`, `--version` | Print the version |
 
-Both period flags work at any point during the period, and always run up to the
+Every period flag works at any point during the period, and always runs up to the
 current moment. Naming a single source drops the source column, since it would
 repeat one value on every row.
 
@@ -104,7 +106,7 @@ that is set. Every field is optional, and a flag always wins over the file.
 # Which day a reporting week starts on.
 first_day_of_week = "mon"
 
-# The window used when no period flag is given.
+# The window used when no period flag is given: day, week or month.
 period = "week"
 
 # Sources queried when no source flag is given.

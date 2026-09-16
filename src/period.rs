@@ -43,6 +43,7 @@ impl TimeRange {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Default)]
 #[serde(rename_all = "lowercase")]
 pub enum Period {
+    Day,
     #[default]
     Week,
     Month,
@@ -53,9 +54,10 @@ impl FromStr for Period {
 
     fn from_str(s: &str) -> Result<Self> {
         match s.to_ascii_lowercase().as_str() {
+            "day" | "d" => Ok(Self::Day),
             "week" | "w" => Ok(Self::Week),
             "month" | "m" => Ok(Self::Month),
-            other => bail!("unknown period `{other}` (expected `week` or `month`)"),
+            other => bail!("unknown period `{other}` (expected `day`, `week` or `month`)"),
         }
     }
 }
@@ -63,6 +65,7 @@ impl FromStr for Period {
 impl fmt::Display for Period {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(match self {
+            Self::Day => "day",
             Self::Week => "week",
             Self::Month => "month",
         })
@@ -127,6 +130,7 @@ pub fn resolve(
 ) -> Result<TimeRange> {
     let today = now.date();
     let current_start = match period {
+        Period::Day => today,
         Period::Week => start_of_week(today, first_day)?,
         Period::Month => today.first_of_month(),
     };
@@ -145,6 +149,7 @@ pub fn resolve(
     }
 
     let back = match period {
+        Period::Day => Span::new().days(1),
         Period::Week => Span::new().days(7),
         Period::Month => Span::new().months(1),
     };
@@ -244,6 +249,42 @@ mod tests {
         let r = resolve(&now, Period::Week, DayName::Mon, true).unwrap();
         assert_eq!(r.start.date(), date("2026-09-07"));
         assert_eq!(r.end.date(), date("2026-09-14"));
+    }
+
+    #[test]
+    fn day_runs_from_midnight_up_to_now() {
+        let now = at("2026-09-15T14:30:00+02:00[Europe/Oslo]");
+        let r = resolve(&now, Period::Day, DayName::Mon, false).unwrap();
+        assert_eq!(
+            r.start.to_string(),
+            "2026-09-15T00:00:00+02:00[Europe/Oslo]"
+        );
+        assert_eq!(r.end, now);
+        assert!(r.open_ended);
+    }
+
+    #[test]
+    fn previous_day_is_the_whole_calendar_day_before() {
+        let now = at("2026-09-14T08:00:00+02:00[Europe/Oslo]");
+        let r = resolve(&now, Period::Day, DayName::Mon, true).unwrap();
+        assert_eq!(
+            r.start.to_string(),
+            "2026-09-13T00:00:00+02:00[Europe/Oslo]"
+        );
+        assert_eq!(r.end.to_string(), "2026-09-14T00:00:00+02:00[Europe/Oslo]");
+        assert!(!r.open_ended);
+    }
+
+    #[test]
+    fn previous_day_spans_a_short_day_across_a_spring_forward_transition() {
+        // Norway springs forward on 2026-03-29.
+        let now = at("2026-03-30T08:00:00+02:00[Europe/Oslo]");
+        let r = resolve(&now, Period::Day, DayName::Mon, true).unwrap();
+        assert_eq!(
+            r.start.to_string(),
+            "2026-03-29T00:00:00+01:00[Europe/Oslo]"
+        );
+        assert_eq!(r.end.to_string(), "2026-03-30T00:00:00+02:00[Europe/Oslo]");
     }
 
     #[test]
@@ -367,9 +408,11 @@ mod tests {
 
     #[test]
     fn periods_parse_from_their_single_letter_forms_and_display_in_full() {
+        assert_eq!("D".parse::<Period>().unwrap(), Period::Day);
         assert_eq!("W".parse::<Period>().unwrap(), Period::Week);
         assert_eq!("m".parse::<Period>().unwrap(), Period::Month);
         assert!("year".parse::<Period>().is_err());
+        assert_eq!(Period::Day.to_string(), "day");
         assert_eq!(Period::Week.to_string(), "week");
         assert_eq!(Period::Month.to_string(), "month");
     }

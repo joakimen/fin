@@ -22,12 +22,16 @@ pub struct Cli {
     #[arg(short = 'v', long = "version", short_alias = 'V', action = ArgAction::Version)]
     pub version: Option<bool>,
 
+    /// Report on today, from midnight up to now
+    #[arg(short = 'd', long, conflicts_with_all = ["week", "month", "since"])]
+    pub day: bool,
+
     /// Report on the current week, from its first day up to now
-    #[arg(short = 'w', long, conflicts_with_all = ["month", "since"])]
+    #[arg(short = 'w', long, conflicts_with_all = ["day", "month", "since"])]
     pub week: bool,
 
     /// Report on the current month, from the 1st up to now
-    #[arg(short = 'm', long, conflicts_with_all = ["week", "since"])]
+    #[arg(short = 'm', long, conflicts_with_all = ["day", "week", "since"])]
     pub month: bool,
 
     /// Shift the window one whole period back
@@ -86,9 +90,10 @@ pub struct Cli {
 impl Cli {
     /// The period named on the command line, if any.
     pub fn period(&self) -> Option<Period> {
-        match (self.week, self.month) {
-            (true, _) => Some(Period::Week),
-            (_, true) => Some(Period::Month),
+        match (self.day, self.week, self.month) {
+            (true, _, _) => Some(Period::Day),
+            (_, true, _) => Some(Period::Week),
+            (_, _, true) => Some(Period::Month),
             _ => None,
         }
     }
@@ -120,6 +125,13 @@ mod tests {
     }
 
     #[test]
+    fn day_excludes_every_other_window() {
+        assert!(Cli::try_parse_from(["fin", "--day", "--week"]).is_err());
+        assert!(Cli::try_parse_from(["fin", "--day", "--month"]).is_err());
+        assert!(Cli::try_parse_from(["fin", "--day", "--since", "2026-09-01"]).is_err());
+    }
+
+    #[test]
     fn until_requires_since() {
         assert!(Cli::try_parse_from(["fin", "--until", "2026-09-01"]).is_err());
     }
@@ -141,6 +153,8 @@ mod tests {
     fn period_reflects_the_named_flag() {
         let cli = Cli::try_parse_from(["fin", "-m"]).unwrap();
         assert_eq!(cli.period(), Some(Period::Month));
+        let cli = Cli::try_parse_from(["fin", "-d", "-p"]).unwrap();
+        assert_eq!(cli.period(), Some(Period::Day));
         assert_eq!(Cli::try_parse_from(["fin"]).unwrap().period(), None);
     }
 }
