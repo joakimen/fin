@@ -31,7 +31,8 @@ its own, so your terminal marks links the way you have configured it. Long title
 truncated to the terminal width.
 
 Styling uses only the sixteen themeable ANSI colours, so it reads correctly on light
-and dark backgrounds alike.
+and dark backgrounds alike. Output is unstyled when piped, when `NO_COLOR` is set, or
+when `TERM` is `dumb`.
 
 ## Install
 
