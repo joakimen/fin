@@ -232,8 +232,12 @@ fn summary(rows: &[Row], styled: bool) -> String {
     for row in rows {
         *counts.entry(row.kind.as_str()).or_default() += 1;
     }
-    let repositories: std::collections::BTreeSet<&str> =
-        rows.iter().filter_map(|r| r.context.as_deref()).collect();
+    let mut places: BTreeMap<&str, std::collections::BTreeSet<&str>> = BTreeMap::new();
+    for row in rows {
+        if let Some(context) = row.context.as_deref() {
+            places.entry(row.context_noun).or_default().insert(context);
+        }
+    }
 
     let mut parts = vec![paint(
         Style::new().bold(),
@@ -245,13 +249,11 @@ fn summary(rows: &[Row], styled: bool) -> String {
             .iter()
             .map(|(kind, count)| paint(kind_style(kind), &plural(*count, kind), styled)),
     );
-    if !repositories.is_empty() {
-        parts.push(paint(
-            context_style(),
-            &plural(repositories.len(), "repository"),
-            styled,
-        ));
-    }
+    parts.extend(
+        places
+            .iter()
+            .map(|(noun, names)| paint(context_style(), &plural(names.len(), noun), styled)),
+    );
     parts.join(" · ")
 }
 
@@ -431,6 +433,22 @@ mod tests {
         let out = render(&rows(&sample()), &range(), plain());
         assert!(
             out.contains("3 items · 1 Issue · 2 PRs · 2 repositories"),
+            "got:\n{out}"
+        );
+    }
+
+    #[test]
+    fn the_summary_counts_places_in_each_sources_own_vocabulary() {
+        let mut items = sample();
+        let mut ticket = items[0].clone();
+        ticket.source = crate::item::SourceId::new("jira");
+        ticket.kind = crate::item::Kind::new("issue");
+        ticket.url = "https://example.atlassian.net/browse/ABC-1".into();
+        items.push(ticket);
+
+        let out = render(&rows(&items), &range(), plain());
+        assert!(
+            out.contains("4 items · 2 Issues · 2 PRs · 1 project · 2 repositories"),
             "got:\n{out}"
         );
     }

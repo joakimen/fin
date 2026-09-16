@@ -2,7 +2,7 @@
 name = "fin"
 version = "0.1.0"
 edition = "2024"
-description = "Report the work you finished, from GitHub and other sources"
+description = "Report the work you finished, from GitHub, Jira and other sources"
 repository = "https://github.com/joakimen/fin"
 license = "MIT"
 

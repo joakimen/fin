@@ -25,6 +25,8 @@ pub struct Row {
     pub reference: String,
     pub title: String,
     pub context: Option<String>,
+    /// What the context is called in the item's source, such as `repository`.
+    pub context_noun: &'static str,
     pub url: String,
 }
 
@@ -40,6 +42,7 @@ pub fn rows(items: &[Item]) -> Vec<Row> {
             reference: item.reference.clone().unwrap_or_default(),
             title: item.title.clone(),
             context: item.context.clone(),
+            context_noun: context_noun(item.source.as_str()),
             url: item.url.clone(),
         })
         .collect()
@@ -52,6 +55,14 @@ pub fn source_label(id: &str) -> String {
         "todoist" => "Todoist".to_string(),
         "jira" => "Jira".to_string(),
         other => capitalize(other),
+    }
+}
+
+/// Names the place an item lives, in its source's own vocabulary.
+pub fn context_noun(source: &str) -> &'static str {
+    match source {
+        "jira" => "project",
+        _ => "repository",
     }
 }
 

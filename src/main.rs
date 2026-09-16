@@ -1,4 +1,4 @@
-//! `fin` — report the work you finished, from GitHub and other sources.
+//! `fin` — report the work you finished, from GitHub, Jira and other sources.
 //!
 //! This module is the imperative shell: it reads the clock, the environment,
 //! the configuration file and the network, and hands plain data to the pure
@@ -195,8 +195,24 @@ fn build_sources(
                 );
                 built.push(with_cache(Box::new(source), cache_dir, settings, diag));
             }
+            "jira" => {
+                let connection =
+                    sources::jira::auth::resolve(&settings.jira, &|name| std::env::var(name).ok())?;
+                diag.log(format_args!("jira site: {}", connection.site));
+
+                let api = sources::jira::client::HttpJira::new(&connection, diag)?;
+                let source = sources::jira::Jira::new(
+                    Box::new(api),
+                    connection.site,
+                    connection.email,
+                    settings.jira.projects.clone(),
+                    tz.clone(),
+                    diag,
+                );
+                built.push(with_cache(Box::new(source), cache_dir, settings, diag));
+            }
             other => {
-                anyhow::bail!("unknown source `{other}` (known sources: github)");
+                anyhow::bail!("unknown source `{other}` (known sources: github, jira)");
             }
         }
     }

@@ -45,6 +45,21 @@ pub struct GithubConfig {
 
 #[derive(Debug, Clone, Deserialize, Default)]
 #[serde(deny_unknown_fields)]
+pub struct JiraConfig {
+    /// Jira Cloud site, such as `example.atlassian.net`. Falls back to
+    /// `JIRA_HOST`.
+    pub site: Option<String>,
+    /// Email of the account the API token belongs to. Falls back to
+    /// `JIRA_API_USER`.
+    pub email: Option<String>,
+    /// Project keys to restrict results to. Empty means every project the
+    /// account can browse.
+    #[serde(default)]
+    pub projects: Vec<String>,
+}
+
+#[derive(Debug, Clone, Deserialize, Default)]
+#[serde(deny_unknown_fields)]
 pub struct ConfigFile {
     pub first_day_of_week: Option<DayName>,
     /// How long a fetched result stays reusable, such as `15m`. `0` disables
@@ -56,6 +71,8 @@ pub struct ConfigFile {
     pub types: BTreeMap<SourceId, Vec<Kind>>,
     #[serde(default)]
     pub github: GithubConfig,
+    #[serde(default)]
+    pub jira: JiraConfig,
 }
 
 impl ConfigFile {
@@ -109,6 +126,7 @@ pub struct Settings {
     /// repeat a single value on every row.
     pub show_source_column: bool,
     pub github: GithubConfig,
+    pub jira: JiraConfig,
     pub cache_ttl: Duration,
 }
 
@@ -220,6 +238,7 @@ pub fn resolve(cli: &Cli, file: ConfigFile, now: &Zoned) -> Result<Settings> {
         types,
         format,
         github,
+        jira: file.jira,
         cache_ttl,
     })
 }
@@ -381,11 +400,32 @@ mod tests {
             [github]
             orgs = []
             issue_match = "either"
+
+            [jira]
+            site = "example.atlassian.net"
+            email = "me@example.com"
+            projects = ["ABC"]
             "#,
         )
         .unwrap();
         assert_eq!(file.first_day_of_week, Some(DayName::Mon));
         assert_eq!(file.github.issue_match, IssueMatch::Either);
+        assert_eq!(file.jira.projects, vec!["ABC".to_string()]);
+    }
+
+    #[test]
+    fn the_jira_token_cannot_be_configured_in_the_file() {
+        assert!(ConfigFile::parse("[jira]\ntoken = \"secret\"").is_err());
+    }
+
+    #[test]
+    fn source_flags_combine() {
+        let s = resolve(&cli(&["--github", "--jira"]), ConfigFile::default(), &now()).unwrap();
+        assert_eq!(
+            s.sources,
+            vec![SourceId::new("github"), SourceId::new("jira")]
+        );
+        assert!(s.show_source_column);
     }
 
     #[test]

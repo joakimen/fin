@@ -13,7 +13,7 @@ use crate::period::Period;
 #[command(
     name = "fin",
     version,
-    about = "Report the work you finished, from GitHub and other sources",
+    about = "Report the work you finished, from GitHub, Jira and other sources",
     long_about = None,
     disable_version_flag = true
 )]
@@ -49,6 +49,10 @@ pub struct Cli {
     /// Query GitHub
     #[arg(long)]
     pub github: bool,
+
+    /// Query Jira
+    #[arg(long)]
+    pub jira: bool,
 
     /// Restrict to an item kind, such as pr or issue; repeatable
     #[arg(long = "type", value_name = "KIND")]
@@ -104,6 +108,9 @@ impl Cli {
         let mut selected = Vec::new();
         if self.github {
             selected.push(crate::item::SourceId::new("github"));
+        }
+        if self.jira {
+            selected.push(crate::item::SourceId::new("jira"));
         }
         selected
     }
