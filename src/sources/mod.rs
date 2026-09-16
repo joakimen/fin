@@ -4,3 +4,4 @@
 //! [`crate::source::Source`].
 
 pub mod github;
+pub mod jira;
