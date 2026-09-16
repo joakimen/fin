@@ -65,11 +65,8 @@ fn kind_style(kind: &str) -> Style {
 
 /// Wraps text in an OSC 8 hyperlink.
 ///
-/// Deliberately adds no styling of its own. Terminals mark a hyperlink
-/// themselves — on hover, or while a modifier is held — and several expose it
-/// as a user preference, so painting an underline here would both duplicate
-/// that affordance and override the choice the reader already made. A list in
-/// which every row is a link gains nothing from underlining every row.
+/// Adds no styling of its own: terminals mark hyperlinks themselves, often
+/// according to a user preference that an underline here would override.
 fn hyperlink(url: &str, text: &str) -> String {
     format!("\x1b]8;;{url}\x1b\\{text}\x1b]8;;\x1b\\")
 }

@@ -185,6 +185,9 @@ mod tests {
         assert_eq!(plural(3, "repository"), "3 repositories");
         assert_eq!(plural(2, "issue"), "2 issues");
         assert_eq!(plural(0, "item"), "0 items");
+        assert_eq!(plural(2, "day"), "2 days");
+        assert_eq!(plural(2, "box"), "2 boxes");
+        assert_eq!(plural(2, "status"), "2 statuses");
     }
 
     #[test]

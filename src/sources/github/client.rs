@@ -163,6 +163,19 @@ mod tests {
     }
 
     #[test]
+    fn graphql_errors_without_messages_fall_back_to_the_body() {
+        let body = serde_json::json!({ "errors": [{ "type": "RATE_LIMITED" }] });
+        let err = check_graphql_errors(&body).unwrap_err().to_string();
+        assert!(err.contains("RATE_LIMITED"), "body missing from: {err}");
+    }
+
+    #[test]
+    fn truncation_counts_characters_rather_than_bytes() {
+        assert_eq!(truncate("  æøå  ", 3), "æøå");
+        assert_eq!(truncate("æøåæøå", 3), "æøå…");
+    }
+
+    #[test]
     fn an_absent_or_empty_errors_array_is_fine() {
         assert!(check_graphql_errors(&serde_json::json!({ "data": {} })).is_ok());
         assert!(check_graphql_errors(&serde_json::json!({ "errors": [] })).is_ok());
