@@ -255,6 +255,20 @@ mod tests {
     }
 
     #[test]
+    fn a_configured_day_period_covers_today() {
+        let file = ConfigFile::parse("period = \"day\"").unwrap();
+        let s = resolve(&cli(&[]), file, &now()).unwrap();
+        assert_eq!(s.range.start.date().to_string(), "2026-09-15");
+    }
+
+    #[test]
+    fn day_with_prev_covers_yesterday() {
+        let s = resolve(&cli(&["-d", "-p"]), ConfigFile::default(), &now()).unwrap();
+        assert_eq!(s.range.start.date().to_string(), "2026-09-14");
+        assert_eq!(s.range.end.date().to_string(), "2026-09-15");
+    }
+
+    #[test]
     fn a_period_flag_overrides_the_configured_period() {
         let file = ConfigFile::parse("period = \"month\"").unwrap();
         let s = resolve(&cli(&["--week"]), file, &now()).unwrap();

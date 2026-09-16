@@ -103,7 +103,12 @@ async fn run(cli: Cli) -> Result<std::process::ExitCode> {
     let mut failures = 0;
     for outcome in fetched {
         match outcome.result {
-            Ok(fetched) => items.extend(fetched),
+            Ok(fetched) => {
+                for warning in &fetched.warnings {
+                    warn_incomplete(&outcome.source, warning);
+                }
+                items.extend(fetched.items);
+            }
             Err(e) => {
                 failures += 1;
                 warn(&outcome.source, &e);
@@ -148,6 +153,12 @@ fn warn(source: &SourceId, error: &anyhow::Error) {
     }
 }
 
+fn warn_incomplete(source: &SourceId, message: &str) {
+    let style = anstyle::Style::new().fg_color(Some(anstyle::AnsiColor::Yellow.into()));
+    let mut stderr = anstream::stderr();
+    let _ = writeln!(stderr, "{style}warning:{style:#} {source}: {message}");
+}
+
 fn build_sources(
     settings: &Settings,
     cache_dir: &std::path::Path,
@@ -165,11 +176,17 @@ fn build_sources(
                 )?;
                 diag.log(format_args!("github token from {}", credentials.origin));
 
-                let api = sources::github::client::HttpGraphQl::new(
+                let http = sources::github::client::HttpGraphQl::new(
                     credentials.token,
                     sources::github::client::DEFAULT_ENDPOINT,
                     diag,
                 )?;
+                let api = sources::github::retry::Retrying::new(
+                    http,
+                    sources::github::retry::TokioTimer,
+                    sources::github::retry::Policy::default(),
+                    diag,
+                );
                 let source = sources::github::GitHub::new(
                     Box::new(api),
                     settings.github.clone(),

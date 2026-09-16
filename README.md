@@ -66,6 +66,7 @@ Organizations with SAML enforcement need the token authorized for that organizat
 
 ```sh
 fin                  # the current week so far
+fin -d -p            # yesterday, for a standup
 fin -w -p            # all of last week
 fin -m               # the current month so far
 fin --since 2026-08-01 --until 2026-08-31
@@ -75,6 +76,7 @@ fin --json | jq .    # for anything else
 
 | Flag | Meaning |
 | --- | --- |
+| `-d`, `--day` | Today, from midnight up to now |
 | `-w`, `--week` | The current week, from its first day up to now |
 | `-m`, `--month` | The current month, from the 1st up to now |
 | `-p`, `--prev` | Shift the window one whole period back |
@@ -91,7 +93,7 @@ fin --json | jq .    # for anything else
 | `-c`, `--config <PATH>` | Use this configuration file |
 | `-v`, `--version` | Print the version |
 
-Both period flags work at any point during the period, and always run up to the
+Every period flag works at any point during the period, and always runs up to the
 current moment. Naming a single source drops the source column, since it would
 repeat one value on every row.
 
@@ -104,7 +106,7 @@ that is set. Every field is optional, and a flag always wins over the file.
 # Which day a reporting week starts on.
 first_day_of_week = "mon"
 
-# The window used when no period flag is given.
+# The window used when no period flag is given: day, week or month.
 period = "week"
 
 # Sources queried when no source flag is given.
@@ -154,7 +156,13 @@ could not be reached. `2` on invalid arguments.
 A source that fails is reported on stderr and the remaining sources are still
 printed, so one outage does not cost you the whole report.
 
+Requests time out after 30 seconds. Timeouts, connection failures, `502`–`504`
+responses and short rate limits are retried up to three attempts in total, with
+backoff. A rate limit that would take longer than 30 seconds to lift fails at once
+and says roughly when it resets. `--debug` shows each retry.
+
 ## Limitations
 
-GitHub search returns at most 1000 results per query. `--debug` says when a window
-exceeds that; narrow it, or filter with `--org`.
+GitHub search returns at most 1000 results per query. When a window matches more,
+`fin` prints what it received and warns on stderr that the report is incomplete;
+narrow the window, or filter with `--org`.

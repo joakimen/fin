@@ -19,7 +19,7 @@ use serde::{Deserialize, Serialize};
 use crate::diag::Diag;
 use crate::item::{Item, Kind, SourceId};
 use crate::period::TimeRange;
-use crate::source::Source;
+use crate::source::{Fetch, Source};
 
 /// Bumped when the on-disk entry shape changes, so old entries are ignored
 /// rather than misread.
@@ -107,6 +107,8 @@ struct CachedItem {
 struct Entry {
     fetched_at: Timestamp,
     items: Vec<CachedItem>,
+    #[serde(default)]
+    warnings: Vec<String>,
 }
 
 impl From<&Item> for CachedItem {
@@ -155,11 +157,11 @@ impl Cache {
         self.dir.join(format!("{key}.json"))
     }
 
-    /// Returns cached items when an entry exists and is still fresh.
+    /// Returns a cached result when an entry exists and is still fresh.
     ///
     /// A missing, unreadable or stale entry is a miss rather than an error: a
     /// broken cache must never be able to fail a report.
-    pub fn read(&self, key: &str, now: Timestamp) -> Option<Vec<Item>> {
+    pub fn read(&self, key: &str, now: Timestamp) -> Option<Fetch> {
         if !self.enabled() {
             return None;
         }
@@ -168,11 +170,14 @@ impl Cache {
         if !is_fresh(entry.fetched_at, now, self.ttl) {
             return None;
         }
-        Some(entry.items.into_iter().map(Item::from).collect())
+        Some(Fetch {
+            items: entry.items.into_iter().map(Item::from).collect(),
+            warnings: entry.warnings,
+        })
     }
 
-    /// Stores items against a key.
-    pub fn write(&self, key: &str, items: &[Item], now: Timestamp) -> Result<()> {
+    /// Stores a result against a key.
+    pub fn write(&self, key: &str, fetch: &Fetch, now: Timestamp) -> Result<()> {
         if !self.enabled() {
             return Ok(());
         }
@@ -181,7 +186,8 @@ impl Cache {
 
         let entry = Entry {
             fetched_at: now,
-            items: items.iter().map(CachedItem::from).collect(),
+            items: fetch.items.iter().map(CachedItem::from).collect(),
+            warnings: fetch.warnings.clone(),
         };
         let text = serde_json::to_string(&entry).context("cannot encode a cache entry")?;
 
@@ -242,28 +248,28 @@ impl Source for Caching {
         self.inner.cache_fingerprint()
     }
 
-    async fn fetch(&self, range: &TimeRange, kinds: &[Kind]) -> Result<Vec<Item>> {
+    async fn fetch(&self, range: &TimeRange, kinds: &[Kind]) -> Result<Fetch> {
         let key = key(&self.id(), &self.cache_fingerprint(), range, kinds);
         let now = Timestamp::now();
 
-        if let Some(items) = self.cache.read(&key, now) {
+        if let Some(fetch) = self.cache.read(&key, now) {
             self.diag.log(format_args!(
                 "{} cache hit ({key}): {} items",
                 self.id(),
-                items.len()
+                fetch.items.len()
             ));
-            return Ok(items);
+            return Ok(fetch);
         }
         self.diag
             .log(format_args!("{} cache miss ({key})", self.id()));
 
-        let items = self.inner.fetch(range, kinds).await?;
+        let fetch = self.inner.fetch(range, kinds).await?;
 
-        if let Err(e) = self.cache.write(&key, &items, now) {
+        if let Err(e) = self.cache.write(&key, &fetch, now) {
             self.diag
                 .log(format_args!("{} cache write failed: {e}", self.id()));
         }
-        Ok(items)
+        Ok(fetch)
     }
 }
 
@@ -285,6 +291,13 @@ mod tests {
         let dir = std::env::temp_dir().join(format!("fin-cache-test-{name}"));
         let _ = std::fs::remove_dir_all(&dir);
         dir
+    }
+
+    fn fetch(urls: &[&str]) -> Fetch {
+        Fetch {
+            items: urls.iter().map(|url| item(url)).collect(),
+            warnings: Vec::new(),
+        }
     }
 
     fn item(url: &str) -> Item {
@@ -397,15 +410,36 @@ mod tests {
     fn a_written_entry_reads_back_unchanged() {
         let cache = Cache::new(temp_dir("roundtrip"), Duration::from_secs(900));
         let now: Timestamp = "2026-09-15T12:00:00Z".parse().unwrap();
-        let items = vec![item("https://example.test/1")];
+        let mut written = fetch(&["https://example.test/1"]);
+        written.warnings.push("capped".into());
 
-        cache.write("k", &items, now).unwrap();
+        cache.write("k", &written, now).unwrap();
         let restored = cache.read("k", now).unwrap();
 
-        assert_eq!(restored.len(), 1);
-        assert_eq!(restored[0].url, items[0].url);
-        assert_eq!(restored[0].completed_at, items[0].completed_at);
-        assert_eq!(restored[0].reference, items[0].reference);
+        assert_eq!(restored.items.len(), 1);
+        assert_eq!(restored.items[0].url, written.items[0].url);
+        assert_eq!(
+            restored.items[0].completed_at,
+            written.items[0].completed_at
+        );
+        assert_eq!(restored.items[0].reference, written.items[0].reference);
+        assert_eq!(restored.warnings, written.warnings);
+    }
+
+    #[test]
+    fn an_entry_written_without_warnings_still_reads() {
+        let dir = temp_dir("no-warnings");
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(
+            dir.join("k.json"),
+            r#"{"fetched_at":"2026-09-15T12:00:00Z","items":[]}"#,
+        )
+        .unwrap();
+        let cache = Cache::new(dir, Duration::from_secs(900));
+        let now: Timestamp = "2026-09-15T12:00:00Z".parse().unwrap();
+        let restored = cache.read("k", now).unwrap();
+        assert!(restored.items.is_empty());
+        assert!(restored.warnings.is_empty());
     }
 
     #[test]
@@ -414,7 +448,7 @@ mod tests {
         let written: Timestamp = "2026-09-15T12:00:00Z".parse().unwrap();
         let much_later: Timestamp = "2026-09-15T13:00:00Z".parse().unwrap();
         cache
-            .write("k", &[item("https://example.test/1")], written)
+            .write("k", &fetch(&["https://example.test/1"]), written)
             .unwrap();
         assert!(cache.read("k", much_later).is_none());
     }
@@ -442,7 +476,7 @@ mod tests {
         let cache = Cache::new(dir.clone(), Duration::ZERO);
         let now: Timestamp = "2026-09-15T12:00:00Z".parse().unwrap();
         cache
-            .write("k", &[item("https://example.test/1")], now)
+            .write("k", &fetch(&["https://example.test/1"]), now)
             .unwrap();
         assert!(
             !dir.exists(),
@@ -456,10 +490,10 @@ mod tests {
         let cache = Cache::new(temp_dir("clear"), Duration::from_secs(900));
         let now: Timestamp = "2026-09-15T12:00:00Z".parse().unwrap();
         cache
-            .write("a", &[item("https://example.test/1")], now)
+            .write("a", &fetch(&["https://example.test/1"]), now)
             .unwrap();
         cache
-            .write("b", &[item("https://example.test/2")], now)
+            .write("b", &fetch(&["https://example.test/2"]), now)
             .unwrap();
 
         assert_eq!(cache.clear().unwrap(), 2);
@@ -478,7 +512,7 @@ mod tests {
         let cache = Cache::new(dir.clone(), Duration::from_secs(900));
         let now: Timestamp = "2026-09-15T12:00:00Z".parse().unwrap();
         cache
-            .write("k", &[item("https://example.test/1")], now)
+            .write("k", &fetch(&["https://example.test/1"]), now)
             .unwrap();
 
         let leftovers: Vec<_> = std::fs::read_dir(&dir)
