@@ -145,6 +145,32 @@ mod tests {
     }
 
     #[test]
+    fn sort_breaks_ties_on_stable_fields() {
+        let at = "2026-09-08T12:00:00+02:00[Europe/Oslo]";
+        let mut issue = item("c", at);
+        issue.kind = Kind::new("issue");
+        let mut later_title = item("a", at);
+        later_title.title = "u".into();
+        let mut items = vec![later_title, item("b", at), issue, item("a", at)];
+
+        sort(&mut items);
+
+        let order: Vec<(&str, &str, &str)> = items
+            .iter()
+            .map(|i| (i.kind.as_str(), i.title.as_str(), i.url.as_str()))
+            .collect();
+        assert_eq!(
+            order,
+            vec![
+                ("issue", "t", "c"),
+                ("pr", "t", "a"),
+                ("pr", "t", "b"),
+                ("pr", "u", "a")
+            ]
+        );
+    }
+
+    #[test]
     fn dedupe_keeps_first_of_each_url() {
         let mut items = vec![
             item("a", "2026-09-08T12:00:00+02:00[Europe/Oslo]"),

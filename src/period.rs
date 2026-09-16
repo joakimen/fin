@@ -295,6 +295,86 @@ mod tests {
     }
 
     #[test]
+    fn a_week_starts_on_its_first_day_whatever_day_it_is_queried() {
+        let first_days = [
+            DayName::Mon,
+            DayName::Tue,
+            DayName::Wed,
+            DayName::Thu,
+            DayName::Fri,
+            DayName::Sat,
+            DayName::Sun,
+        ];
+        // 2026-09-14 is a Monday; the dates cover a full week.
+        for offset in 0..7 {
+            let today = date("2026-09-14")
+                .checked_add(Span::new().days(offset))
+                .unwrap();
+            for first_day in first_days {
+                let start = start_of_week(today, first_day).unwrap();
+                let back = (today - start).get_days();
+                assert_eq!(
+                    start.weekday(),
+                    first_day.to_weekday(),
+                    "{today} {first_day:?}"
+                );
+                assert!(
+                    (0..7).contains(&back),
+                    "{today} {first_day:?}: {back} days back"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn only_the_current_period_is_open_ended() {
+        let now = at("2026-09-15T14:30:00+02:00[Europe/Oslo]");
+        assert!(
+            resolve(&now, Period::Week, DayName::Mon, false)
+                .unwrap()
+                .open_ended
+        );
+        assert!(
+            !resolve(&now, Period::Week, DayName::Mon, true)
+                .unwrap()
+                .open_ended
+        );
+    }
+
+    #[test]
+    fn explicit_without_until_runs_up_to_now() {
+        let now = at("2026-09-15T14:30:00+02:00[Europe/Oslo]");
+        let r = explicit(&now, date("2026-09-01"), None).unwrap();
+        assert_eq!(r.end, now);
+        assert!(r.open_ended);
+    }
+
+    #[test]
+    fn explicit_accepts_a_single_day() {
+        let now = at("2026-09-15T14:30:00+02:00[Europe/Oslo]");
+        let r = explicit(&now, date("2026-09-07"), Some(date("2026-09-07"))).unwrap();
+        assert_eq!(r.start.date(), date("2026-09-07"));
+        assert_eq!(r.end.date(), date("2026-09-08"));
+        assert!(!r.open_ended);
+    }
+
+    #[test]
+    fn the_label_shows_the_start_date_and_the_end_minute() {
+        let now = at("2026-09-15T14:30:00+02:00[Europe/Oslo]");
+        let r = resolve(&now, Period::Week, DayName::Mon, false).unwrap();
+        assert_eq!(r.label(), "2026-09-14 .. 2026-09-15 14:30");
+    }
+
+    #[test]
+    fn periods_parse_from_their_single_letter_forms_and_display_in_full() {
+        assert_eq!("W".parse::<Period>().unwrap(), Period::Week);
+        assert_eq!("m".parse::<Period>().unwrap(), Period::Month);
+        assert!("year".parse::<Period>().is_err());
+        assert_eq!(Period::Week.to_string(), "week");
+        assert_eq!(Period::Month.to_string(), "month");
+    }
+
+    #[test]
     fn day_and_period_names_parse_from_their_short_forms() {
         assert_eq!("Mon".parse::<DayName>().unwrap(), DayName::Mon);
         assert_eq!("sunday".parse::<DayName>().unwrap(), DayName::Sun);

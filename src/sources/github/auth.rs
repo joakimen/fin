@@ -210,6 +210,12 @@ mod tests {
     }
 
     #[test]
+    fn origins_display_the_way_debug_output_names_them() {
+        assert_eq!(Origin::Env("GH_TOKEN").to_string(), "$GH_TOKEN");
+        assert_eq!(Origin::GhCli.to_string(), "gh auth token");
+    }
+
+    #[test]
     fn token_debug_output_hides_the_secret() {
         let rendered = format!("{:?}", Token::new("gho_supersecret"));
         assert_eq!(rendered, "Token(<redacted>)");

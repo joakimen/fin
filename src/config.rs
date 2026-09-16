@@ -324,6 +324,31 @@ mod tests {
     }
 
     #[test]
+    fn output_flags_select_the_format() {
+        let format = |args: &[&str]| {
+            resolve(&cli(args), ConfigFile::default(), &now())
+                .unwrap()
+                .format
+        };
+        assert_eq!(format(&[]), Format::Terminal);
+        assert_eq!(format(&["--markdown"]), Format::Markdown);
+        assert_eq!(format(&["--json"]), Format::Json);
+    }
+
+    #[test]
+    fn an_empty_configured_source_list_falls_back_to_github() {
+        let file = ConfigFile::parse("sources = []").unwrap();
+        let s = resolve(&cli(&[]), file, &now()).unwrap();
+        assert_eq!(s.sources, vec![SourceId::new("github")]);
+    }
+
+    #[test]
+    fn an_invalid_configured_ttl_fails_resolution() {
+        let file = ConfigFile::parse("cache_ttl = \"soon\"").unwrap();
+        assert!(resolve(&cli(&[]), file, &now()).is_err());
+    }
+
+    #[test]
     fn unknown_configuration_keys_are_rejected() {
         assert!(ConfigFile::parse("perild = \"week\"").is_err());
     }
