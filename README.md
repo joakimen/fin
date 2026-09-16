@@ -147,9 +147,11 @@ fin --clear-cache
 
 ## Exit status
 
-`0` on success, `1` if a source could not be reached. A source that fails is
-reported on stderr and the remaining sources are still printed, so one outage does
-not cost you the whole report.
+`0` on success. `1` on an error, such as an invalid configuration or a source that
+could not be reached. `2` on invalid arguments.
+
+A source that fails is reported on stderr and the remaining sources are still
+printed, so one outage does not cost you the whole report.
 
 ## Limitations
 
