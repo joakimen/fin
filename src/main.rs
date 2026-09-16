@@ -176,11 +176,17 @@ fn build_sources(
                 )?;
                 diag.log(format_args!("github token from {}", credentials.origin));
 
-                let api = sources::github::client::HttpGraphQl::new(
+                let http = sources::github::client::HttpGraphQl::new(
                     credentials.token,
                     sources::github::client::DEFAULT_ENDPOINT,
                     diag,
                 )?;
+                let api = sources::github::retry::Retrying::new(
+                    http,
+                    sources::github::retry::TokioTimer,
+                    sources::github::retry::Policy::default(),
+                    diag,
+                );
                 let source = sources::github::GitHub::new(
                     Box::new(api),
                     settings.github.clone(),

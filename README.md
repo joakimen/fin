@@ -156,6 +156,11 @@ could not be reached. `2` on invalid arguments.
 A source that fails is reported on stderr and the remaining sources are still
 printed, so one outage does not cost you the whole report.
 
+Requests time out after 30 seconds. Timeouts, connection failures, `502`–`504`
+responses and short rate limits are retried up to three attempts in total, with
+backoff. A rate limit that would take longer than 30 seconds to lift fails at once
+and says roughly when it resets. `--debug` shows each retry.
+
 ## Limitations
 
 GitHub search returns at most 1000 results per query. When a window matches more,

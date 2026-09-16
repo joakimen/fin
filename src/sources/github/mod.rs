@@ -7,6 +7,7 @@ pub mod auth;
 pub mod client;
 pub mod map;
 pub mod query;
+pub mod retry;
 
 use anyhow::{Context, Result};
 use async_trait::async_trait;
