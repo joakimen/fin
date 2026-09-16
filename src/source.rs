@@ -24,13 +24,22 @@ pub trait Source: Send + Sync {
     /// configuration change invalidates cached entries.
     fn cache_fingerprint(&self) -> String;
 
-    async fn fetch(&self, range: &TimeRange, kinds: &[Kind]) -> Result<Vec<Item>>;
+    async fn fetch(&self, range: &TimeRange, kinds: &[Kind]) -> Result<Fetch>;
+}
+
+/// What a source returned for a window.
+#[derive(Debug, Clone, Default)]
+pub struct Fetch {
+    pub items: Vec<Item>,
+    /// Conditions that leave the result usable but possibly incomplete, such
+    /// as an upstream result cap, worded for the person reading the report.
+    pub warnings: Vec<String>,
 }
 
 /// Outcome of querying one source.
 pub struct Fetched {
     pub source: SourceId,
-    pub result: Result<Vec<Item>>,
+    pub result: Result<Fetch>,
 }
 
 /// Queries every source concurrently.

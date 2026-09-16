@@ -103,7 +103,12 @@ async fn run(cli: Cli) -> Result<std::process::ExitCode> {
     let mut failures = 0;
     for outcome in fetched {
         match outcome.result {
-            Ok(fetched) => items.extend(fetched),
+            Ok(fetched) => {
+                for warning in &fetched.warnings {
+                    warn_incomplete(&outcome.source, warning);
+                }
+                items.extend(fetched.items);
+            }
             Err(e) => {
                 failures += 1;
                 warn(&outcome.source, &e);
@@ -146,6 +151,12 @@ fn warn(source: &SourceId, error: &anyhow::Error) {
     for cause in error.chain().skip(1) {
         let _ = writeln!(stderr, "  caused by: {cause}");
     }
+}
+
+fn warn_incomplete(source: &SourceId, message: &str) {
+    let style = anstyle::Style::new().fg_color(Some(anstyle::AnsiColor::Yellow.into()));
+    let mut stderr = anstream::stderr();
+    let _ = writeln!(stderr, "{style}warning:{style:#} {source}: {message}");
 }
 
 fn build_sources(

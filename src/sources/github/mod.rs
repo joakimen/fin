@@ -17,7 +17,7 @@ use crate::config::GithubConfig;
 use crate::diag::Diag;
 use crate::item::{Item, Kind, SourceId};
 use crate::period::TimeRange;
-use crate::source::Source;
+use crate::source::{Fetch, Source};
 
 use client::GraphQl;
 use query::Search;
@@ -91,13 +91,15 @@ impl GitHub {
             .context("GitHub did not return a login for the token")
     }
 
-    /// Runs one search to exhaustion, following cursors.
-    async fn run_search(&self, search: &Search) -> Result<Vec<Item>> {
+    /// Runs one search to exhaustion, following cursors, and reports whether
+    /// GitHub's result cap cut it short.
+    async fn run_search(&self, search: &Search) -> Result<(Vec<Item>, Option<String>)> {
         self.diag
             .log(format_args!("github query: {}", search.query));
 
         let mut items = Vec::new();
         let mut cursor: Option<String> = None;
+        let mut capped = None;
 
         loop {
             let body = self
@@ -111,12 +113,8 @@ impl GitHub {
 
             let page = map::parse_page(&body)?;
 
-            if cursor.is_none() && page.issue_count > SEARCH_RESULT_CAP {
-                self.diag.log(format_args!(
-                    "{} matches exceed GitHub's {SEARCH_RESULT_CAP}-result cap; \
-                     narrow the window or filter by organization",
-                    page.issue_count
-                ));
+            if cursor.is_none() {
+                capped = cap_warning(search.kind, page.issue_count);
             }
 
             items.extend(map::to_items(
@@ -136,8 +134,23 @@ impl GitHub {
             search.kind,
             items.len()
         ));
-        Ok(items)
+        Ok((items, capped))
     }
+}
+
+/// Describes a search that matched more than GitHub will return, if it did.
+fn cap_warning(kind: &str, matched: u32) -> Option<String> {
+    let noun = match kind {
+        "pr" => "pull request",
+        other => other,
+    };
+    (matched > SEARCH_RESULT_CAP).then(|| {
+        format!(
+            "the {noun} search matched {matched} results, but GitHub returns at most \
+             {SEARCH_RESULT_CAP}, so the report is incomplete; \
+             narrow the window or filter with --org"
+        )
+    })
 }
 
 #[async_trait]
@@ -161,7 +174,7 @@ impl Source for GitHub {
         )
     }
 
-    async fn fetch(&self, range: &TimeRange, kinds: &[Kind]) -> Result<Vec<Item>> {
+    async fn fetch(&self, range: &TimeRange, kinds: &[Kind]) -> Result<Fetch> {
         let user = self.viewer().await?;
         self.diag.log(format_args!("github viewer: {user}"));
 
@@ -179,13 +192,15 @@ impl Source for GitHub {
             ));
         }
 
-        let mut items = Vec::new();
+        let mut fetch = Fetch::default();
         for search in &searches {
-            items.extend(self.run_search(search).await?);
+            let (items, capped) = self.run_search(search).await?;
+            fetch.items.extend(items);
+            fetch.warnings.extend(capped);
         }
 
-        crate::item::dedupe(&mut items);
-        Ok(items)
+        crate::item::dedupe(&mut fetch.items);
+        Ok(fetch)
     }
 }
 
@@ -236,8 +251,12 @@ mod tests {
     }
 
     fn page(nodes: Value, next: Option<&str>) -> Value {
+        counted_page(1, nodes, next)
+    }
+
+    fn counted_page(matched: u32, nodes: Value, next: Option<&str>) -> Value {
         serde_json::json!({ "data": { "search": {
-            "issueCount": 1,
+            "issueCount": matched,
             "pageInfo": { "hasNextPage": next.is_some(), "endCursor": next },
             "nodes": nodes
         }}})
@@ -272,7 +291,11 @@ mod tests {
             None,
         )]);
         let source = github(api, GithubConfig::default());
-        let items = source.fetch(&range(), &[Kind::new("pr")]).await.unwrap();
+        let items = source
+            .fetch(&range(), &[Kind::new("pr")])
+            .await
+            .unwrap()
+            .items;
         assert_eq!(items.len(), 1);
         assert_eq!(items[0].reference.as_deref(), Some("#1"));
         assert_eq!(items[0].title, "work");
@@ -288,7 +311,11 @@ mod tests {
             page(serde_json::json!([pr(2, "2026-09-14T10:00:00Z")]), None),
         ]);
         let source = github(api, GithubConfig::default());
-        let items = source.fetch(&range(), &[Kind::new("pr")]).await.unwrap();
+        let items = source
+            .fetch(&range(), &[Kind::new("pr")])
+            .await
+            .unwrap()
+            .items;
         assert_eq!(items.len(), 2);
     }
 
@@ -305,6 +332,7 @@ mod tests {
                 .fetch(&range(), &[Kind::new("pr")])
                 .await
                 .unwrap()
+                .items
                 .len(),
             1
         );
@@ -323,8 +351,50 @@ mod tests {
             page(serde_json::json!([issue]), None),
         ]);
         let source = github(api, GithubConfig::default());
-        let items = source.fetch(&range(), &[Kind::new("issue")]).await.unwrap();
+        let items = source
+            .fetch(&range(), &[Kind::new("issue")])
+            .await
+            .unwrap()
+            .items;
         assert_eq!(items.len(), 1);
+    }
+
+    #[tokio::test]
+    async fn a_search_over_the_result_cap_warns_but_still_returns_its_items() {
+        let api = Replay::new(vec![counted_page(
+            1500,
+            serde_json::json!([pr(1, "2026-09-14T09:00:00Z")]),
+            None,
+        )]);
+        let source = github(api, GithubConfig::default());
+        let fetch = source.fetch(&range(), &[Kind::new("pr")]).await.unwrap();
+        assert_eq!(fetch.items.len(), 1);
+        assert_eq!(fetch.warnings.len(), 1);
+        assert!(fetch.warnings[0].contains("1500"), "{:?}", fetch.warnings);
+        assert!(fetch.warnings[0].contains("--org"), "{:?}", fetch.warnings);
+    }
+
+    #[tokio::test]
+    async fn a_search_within_the_result_cap_raises_no_warning() {
+        let api = Replay::new(vec![counted_page(
+            1000,
+            serde_json::json!([pr(1, "2026-09-14T09:00:00Z")]),
+            None,
+        )]);
+        let source = github(api, GithubConfig::default());
+        let fetch = source.fetch(&range(), &[Kind::new("pr")]).await.unwrap();
+        assert!(fetch.warnings.is_empty(), "{:?}", fetch.warnings);
+    }
+
+    #[test]
+    fn the_cap_warning_names_the_search_it_concerns() {
+        assert!(
+            cap_warning("pr", 1001)
+                .unwrap()
+                .contains("pull request search")
+        );
+        assert!(cap_warning("issue", 1001).unwrap().contains("issue search"));
+        assert!(cap_warning("issue", 1000).is_none());
     }
 
     #[tokio::test]

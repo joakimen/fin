@@ -158,5 +158,6 @@ printed, so one outage does not cost you the whole report.
 
 ## Limitations
 
-GitHub search returns at most 1000 results per query. `--debug` says when a window
-exceeds that; narrow it, or filter with `--org`.
+GitHub search returns at most 1000 results per query. When a window matches more,
+`fin` prints what it received and warns on stderr that the report is incomplete;
+narrow the window, or filter with `--org`.
